@@ -38,11 +38,11 @@ export default function GameCard({ game, onClick }: GameCardProps) {
         className="group relative h-full flex flex-col cursor-pointer bg-white/5 border border-white/5 rounded-[3rem] overflow-hidden transition-all duration-700 hover:border-blue-500/50 hover:bg-white/10 hover:shadow-neon-blue"
       >
         {/* Image Container */}
-        <div className="relative aspect-[16/10] overflow-hidden">
+        <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
           <motion.img 
             src={game.imageUrl} 
             alt={game.title}
-            className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
+            className="w-full h-full object-contain grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
           />
           
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent group-hover:via-black/20 transition-all duration-700" />

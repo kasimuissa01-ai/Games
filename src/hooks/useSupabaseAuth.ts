@@ -52,7 +52,7 @@ export function useSupabaseAuth() {
         setIsAdmin(data.is_admin || false);
       } else {
         // Fallback for bootstrap
-        const hardcodedAdmins = ['grapherkidd0@gmail.com', 'Andrewseba474@gmail.com'];
+        const hardcodedAdmins = ['grapherkidd0@gmail.com', 'Andrewseba474@gmail.com', 'tzngondi1699@gmail.com'];
         const session = await supabase.auth.getSession();
         const email = session.data.session?.user?.email;
         if (email && hardcodedAdmins.includes(email)) {
@@ -62,9 +62,9 @@ export function useSupabaseAuth() {
         }
       }
     } catch (err) {
-      console.warn("Admin check failed - check if 'profiles' table exists", err);
+      console.warn("Admin check failed - checking hardcoded list", err);
       // Even if check fails, try hardcoded check
-      const hardcodedAdmins = ['grapherkidd0@gmail.com', 'Andrewseba474@gmail.com'];
+      const hardcodedAdmins = ['grapherkidd0@gmail.com', 'Andrewseba474@gmail.com', 'tzngondi1699@gmail.com'];
       const { data: { session } } = await supabase.auth.getSession();
       const email = session?.user?.email;
       if (email && hardcodedAdmins.includes(email)) {

@@ -89,30 +89,76 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
     e.preventDefault();
     if (!editingGame) return;
 
+    // Validation
+    if (!editingGame.title || !editingGame.description || !editingGame.downloadUrl) {
+      alert("Please fill in all required fields (Title, Description, Download Link)");
+      return;
+    }
+
+    if (!imageFile && !editingGame.imageUrl && !imagePreview) {
+      alert("Please upload or provide an image URL for the game.");
+      return;
+    }
+
     setUploading(true);
+    console.log("Submit button clicked. Form data:", editingGame);
+    console.log("Image File:", imageFile);
+
     try {
       let finalImageUrl = editingGame.imageUrl || '';
 
       // If there is a new image file, upload it first
       if (imageFile) {
-        finalImageUrl = await uploadImage(imageFile);
+        console.log("Step 1: Uploading image to storage...");
+        try {
+          finalImageUrl = await uploadImage(imageFile);
+          console.log("Step 1 Success: Image URL:", finalImageUrl);
+        } catch (uploadErr: any) {
+          console.error("Step 1 Failed:", uploadErr);
+          throw new Error(`STORAGE ERROR: ${uploadErr.message || 'Could not upload image'}`);
+        }
       }
 
       const gameData = { ...editingGame, imageUrl: finalImageUrl };
+      console.log("Step 2: Preparing database record:", gameData);
 
       if ('id' in gameData && gameData.id) {
+        console.log("Step 3: Updating record in 'games' table...");
         await updateGame(gameData.id, gameData as Partial<Game>);
       } else {
+        console.log("Step 3: Inserting into 'games' table...");
         await createGame(gameData as Omit<Game, 'id' | 'createdAt' | 'updatedAt'>);
       }
+      
+      console.log("Final Step: Success!");
       setIsEditing(false);
       setEditingGame(null);
       setImageFile(null);
       setImagePreview(null);
       loadGames();
-    } catch (error) {
-      console.error("Save error", error);
-      alert("Failed to save game. Make sure the 'game-assets' bucket exists in Supabase and is public.");
+      alert("SUCCESS: Game has been saved and is now live!");
+    } catch (error: any) {
+      console.error("CRITICAL ERROR IN SAVING:", error);
+      let errorMsg = error?.message || "An unknown error occurred";
+      
+      // Check for specific Supabase errors
+      if (error?.code === "42P01") errorMsg = "Database Table Not Found: Use SQL Editor to CREATE the tables.";
+      if (error?.code === "42703") errorMsg = "Database Schema Error: Missing column (Run SQL Section 7)";
+      if (error?.status === 403) errorMsg = "Permission Denied: You are not an admin or RLS is blocking you.";
+      
+      alert(
+        `❌ SAVE FAILED!\n\n` +
+        `WHAT HAPPENED:\n${errorMsg}\n\n` +
+        `TECHNICAL STUFF:\n` +
+        (error?.details ? `Details: ${error.details}\n` : "") +
+        (error?.hint ? `Hint: ${error.hint}\n` : "") +
+        `-------------------\n` +
+        `PLEASE TRY THIS:\n` +
+        `1. Open Supabase Dashboard -> SQL Editor\n` +
+        `2. Copy EVERYTHING from the 'supabase-schema.sql' file\n` +
+        `3. Paste it in the SQL Editor and click RUN.\n` +
+        `4. Refresh this page and try again.`
+      );
     } finally {
       setUploading(false);
     }
@@ -177,7 +223,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
             >
               <div className="flex items-center gap-6">
                 <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-900 border border-white/10">
-                  <img src={game.imageUrl} className="w-full h-full object-cover" alt="" />
+                  <img src={game.imageUrl} className="w-full h-full object-contain" alt="" />
                 </div>
                 <div>
                   <h3 className="font-black text-white text-lg tracking-tight uppercase group-hover:text-blue-400 transition-colors">{game.title}</h3>
@@ -340,34 +386,28 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
                   <div className="col-span-2">
                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">Cover Image</label>
                     <div className="flex flex-col sm:flex-row gap-6">
-                      <div className="w-full sm:w-48 h-48 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden relative group">
+                      <div className="w-full sm:w-64 h-64 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden relative group">
                         {imagePreview ? (
-                          <img src={imagePreview} className="w-full h-full object-cover" alt="Preview" />
+                          <img src={imagePreview} className="w-full h-full object-contain" alt="Preview" />
                         ) : (
                           <ImageIcon className="text-slate-700" size={40} />
                         )}
                         <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                           <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                          <Upload className="text-white" size={24} />
+                          <div className="flex flex-col items-center gap-2">
+                             <Upload className="text-white" size={24} />
+                             <span className="text-[8px] text-white font-black uppercase">Change Image</span>
+                          </div>
                         </label>
                       </div>
                       <div className="flex-1 space-y-4">
                         <p className="text-[9px] text-slate-500 font-bold uppercase leading-relaxed">
-                          Upload a high-quality JPEG or PNG. This will be the main visual for the asset.
+                          Click the box to upload a high-quality JPEG or PNG from your gallery. This will be the main visual for the asset.
                         </p>
-                        <div className="space-y-2">
-                           <span className="text-[8px] text-slate-600 font-black uppercase tracking-widest">OR USE EXTERNAL URL</span>
-                           <input 
-                             type="text" 
-                             value={editingGame?.imageUrl || ''}
-                             onChange={e => {
-                               setEditingGame({ ...editingGame, imageUrl: e.target.value });
-                               setImagePreview(e.target.value);
-                               setImageFile(null);
-                             }}
-                             className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-[10px] font-bold text-white focus:border-blue-500/50 outline-none transition-all" 
-                             placeholder="https://images.unsplash.com/..."
-                           />
+                        <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                          <p className="text-[8px] text-blue-400 font-black uppercase tracking-widest leading-normal">
+                            Note: Gallery upload is now REQUIRED. External image links are disabled for consistency.
+                          </p>
                         </div>
                       </div>
                     </div>
