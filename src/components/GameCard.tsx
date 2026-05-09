@@ -25,23 +25,23 @@ export default function GameCard({ game, onClick }: GameCardProps) {
     >
       <div 
         onClick={() => onClick(game)}
-        className="group relative h-full flex flex-col cursor-pointer bg-[#0c0c14]/80 backdrop-blur-3xl border border-white/5 rounded-[2rem] p-4 transition-all duration-500 hover:border-fuchsia-500/50 hover:bg-[#12121f]/90 hover:shadow-[0_0_40px_-10px_rgba(217,70,239,0.3)]"
+        className="group relative h-full flex flex-col cursor-pointer bg-gradient-to-b from-[#1c1c2a] to-[#0f0f1b] border border-white/5 rounded-[1.5rem] p-3 shadow-lg transition-all duration-500 hover:border-purple-500/40 hover:shadow-[0_0_30px_-5px_rgba(168,85,247,0.3)]"
       >
         {/* Image Container */}
-        <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#050505] mb-5 border border-white/5 group-hover:border-white/10 transition-colors shrink-0">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[1.25rem] bg-[#050505] mb-4 border border-white/5 group-hover:border-white/10 transition-colors shrink-0">
           <img 
             src={game.imageUrl} 
             alt={game.title}
             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
           />
           
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c14] via-transparent to-transparent opacity-50" />
           
           {/* Badge */}
-          <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/10">
-            <div className="flex items-center gap-1.5">
+          <div className="absolute top-2 right-2 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10">
+            <div className="flex items-center gap-1">
               <span className="text-gray-300">{platformIcons[game.platform]}</span>
-              <span className="text-[9px] font-bold text-gray-200 tracking-wider">
+              <span className="text-[8px] font-bold text-gray-200 tracking-wider">
                 {game.platform}
               </span>
             </div>
@@ -49,23 +49,23 @@ export default function GameCard({ game, onClick }: GameCardProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 flex flex-col justify-end px-2">
-          <div className="flex justify-between items-center mb-5 shrink-0">
-            <h3 className="font-semibold text-sm text-white truncate pr-2">
+        <div className="flex-1 flex flex-col justify-end px-1">
+          <div className="flex justify-between items-center mb-4 shrink-0">
+            <h3 className="font-medium text-xs sm:text-sm text-gray-100 truncate pr-2">
               {game.title}
             </h3>
-            <div className="flex items-center gap-1.5 shrink-0">
-               <span className="text-fuchsia-400 text-xs">♦</span>
+            <div className="flex items-center gap-1 shrink-0">
+               <span className="text-purple-500 text-[10px]">ETH</span>
                <span className="text-xs font-bold text-white">
-                  {typeof game.price === 'number' ? (game.price === 0 ? 'FREE' : `${game.price.toLocaleString()}`) : 'N/A'}
+                  {typeof game.price === 'number' ? (game.price === 0 ? '0' : `${(game.price / 10000).toLocaleString()}`) : 'N/A'}
                </span>
             </div>
           </div>
           
           <button 
-            className="w-full py-3 rounded-full border border-fuchsia-500/30 text-fuchsia-400 text-xs font-bold tracking-wide transition-all duration-300 group-hover:bg-fuchsia-500/10 group-hover:border-fuchsia-500 group-hover:shadow-[0_0_20px_-5px_rgba(217,70,239,0.4)]"
+            className="w-full py-2.5 rounded-full border border-purple-500/50 text-purple-400 text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 group-hover:bg-purple-500/10 group-hover:border-purple-500 shadow-[0_0_15px_-5px_rgba(168,85,247,0.3)]"
           >
-            View Game
+            Buy Now
           </button>
         </div>
       </div>
