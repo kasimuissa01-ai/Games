@@ -386,9 +386,9 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
                   <div className="col-span-2">
                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">Cover Image</label>
                     <div className="flex flex-col sm:flex-row gap-6">
-                      <div className="w-full sm:w-64 h-64 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden relative group">
+                      <div className="w-full sm:w-64 h-64 rounded-[2rem] bg-slate-900 border border-white/5 flex items-center justify-center overflow-hidden relative group shrink-0">
                         {imagePreview ? (
-                          <img src={imagePreview} className="w-full h-full object-contain" alt="Preview" />
+                          <img src={imagePreview} className="w-full h-full object-cover" alt="Preview" />
                         ) : (
                           <ImageIcon className="text-slate-700" size={40} />
                         )}

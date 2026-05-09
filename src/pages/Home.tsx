@@ -88,14 +88,14 @@ function GameSection({ title, subtitle, games, loading, onGameSelect }: { title:
       </div>
 
       <div className="relative">
-        <div className="flex items-stretch gap-8 overflow-x-auto px-6 md:px-12 pb-12 no-scrollbar scroll-smooth">
+        <div className="flex items-stretch gap-6 overflow-x-auto px-6 md:px-12 pb-12 no-scrollbar scroll-smooth">
           {loading ? (
             [1, 2, 3, 4, 5].map(i => (
-              <div key={i} className="min-w-[340px] md:min-w-[440px] aspect-[16/10] rounded-[3rem] bg-white/5 animate-pulse border border-white/10" />
+              <div key={i} className="min-w-[260px] md:min-w-[320px] aspect-[4/5] rounded-[2rem] bg-white/5 animate-pulse border border-white/10 shrink-0" />
             ))
           ) : games.length > 0 ? (
             games.map((game) => (
-              <div key={game.id} className="min-w-[340px] md:min-w-[440px]">
+              <div key={game.id} className="min-w-[260px] md:min-w-[320px] shrink-0">
                 <GameCard game={game} onClick={onGameSelect} />
               </div>
             ))

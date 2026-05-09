@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 import { db, storage, auth } from '../lib/firebase';
 import { collection, doc, getDocs, getDoc, setDoc, addDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -34,18 +35,31 @@ export const getGames = async (platformFilter?: Platform | 'ALL') => {
   }
 };
 
+
 export const uploadImage = async (file: File) => {
   try {
-    console.log("Starting upload to Firebase storage...");
+    console.log("Starting upload to Supabase storage...");
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    // Using a user-specific or global folder. Let's use game-assets/
-    const storageRef = ref(storage, `game-assets/${fileName}`);
+    const filePath = `${fileName}`;
 
-    await uploadBytes(storageRef, file);
+    const { error: uploadError } = await supabase.storage
+      .from('game-assets')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error("Supabase Storage Error:", uploadError);
+      throw uploadError;
+    }
+
     console.log("Upload successful, fetching public URL...");
-    
-    const publicUrl = await getDownloadURL(storageRef);
+    const { data: { publicUrl } } = supabase.storage
+      .from('game-assets')
+      .getPublicUrl(filePath);
+
     console.log("Public URL generated:", publicUrl);
     return publicUrl;
   } catch (error: any) {
