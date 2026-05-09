@@ -1,18 +1,16 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Gamepad2, ShoppingCart, User, LogIn, LogOut, LayoutDashboard } from 'lucide-react';
-import { logout } from '../lib/supabase';
-import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
+import { logout } from '../lib/firebase';
 
 interface NavbarProps {
   onAdminClick: () => void;
   onLoginClick: () => void;
   isAdmin: boolean;
+  user: any;
 }
 
-export default function Navbar({ onAdminClick, onLoginClick, isAdmin }: NavbarProps) {
-  const { user } = useSupabaseAuth();
-
+export default function Navbar({ onAdminClick, onLoginClick, isAdmin, user }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass h-20 px-10 flex items-center justify-between">
       <div className="flex items-center gap-12">
@@ -55,7 +53,7 @@ export default function Navbar({ onAdminClick, onLoginClick, isAdmin }: NavbarPr
           {user ? (
             <div className="flex items-center gap-4">
               <div className="hidden sm:flex flex-col items-end">
-                <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">{user.user_metadata?.full_name || user.user_metadata?.name || 'User'}</span>
+                <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">{user.displayName || 'User'}</span>
                 <button 
                   onClick={logout}
                   className="text-[9px] text-blue-400 hover:text-blue-300 uppercase tracking-widest font-black"
@@ -68,7 +66,7 @@ export default function Navbar({ onAdminClick, onLoginClick, isAdmin }: NavbarPr
                 className="w-10 h-10 rounded-full border-2 border-blue-500 p-0.5"
               >
                 <div className="w-full h-full rounded-full overflow-hidden bg-slate-800">
-                  <img src={user.user_metadata?.avatar_url || user.user_metadata?.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`} alt="Avatar" className="w-full h-full object-cover" />
                 </div>
               </motion.div>
             </div>

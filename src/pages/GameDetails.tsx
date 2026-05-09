@@ -3,21 +3,20 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Game, Purchase } from '../types';
 import { ChevronLeft, Download, ShieldCheck, Zap, Globe, Clock, Star, Share2, CreditCard, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
 import { createPurchase } from '../services/gameService';
 
 import AuthModal from '../components/AuthModal';
 
 interface GameDetailsProps {
   game: Game;
+  user: any;
   onBack: () => void;
 }
 
 const PAYMENT_PHONE = "0716 123 283"; // Updated payment number
 const PAYMENT_NAME = "ARON ANDREW"; // Updated payment name
 
-export default function GameDetails({ game, onBack }: GameDetailsProps) {
-  const { user } = useSupabaseAuth();
+export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [purchaseStatus, setPurchaseStatus] = useState<'none' | 'pending' | 'confirmed'>('none');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -34,7 +33,7 @@ export default function GameDetails({ game, onBack }: GameDetailsProps) {
       const { data, error } = await supabase
         .from('purchases')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user.uid)
         .eq('game_id', game.id)
         .order('purchased_at', { ascending: false });
 
@@ -54,14 +53,14 @@ export default function GameDetails({ game, onBack }: GameDetailsProps) {
 
     // Real-time listener for status changes
     const channel = supabase
-      .channel(`purchase-updates-${user.id}-${game.id}`)
+      .channel(`purchase-updates-${user.uid}-${game.id}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'purchases',
-          filter: `user_id=eq.${user.id}`
+          filter: `user_id=eq.${user.uid}`
         },
         (payload) => {
           if (payload.new.game_id === game.id) {
@@ -101,7 +100,7 @@ export default function GameDetails({ game, onBack }: GameDetailsProps) {
     
     try {
       await createPurchase({
-        userId: user.id,
+        userId: user.uid,
         userEmail: user.email || 'anonymous',
         gameId: game.id,
         gameTitle: game.title,

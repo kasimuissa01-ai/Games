@@ -1,17 +1,15 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Home, User, ShoppingBag, LayoutDashboard } from 'lucide-react';
-import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
 
 interface BottomNavProps {
   activeTab: 'home' | 'details' | 'admin' | 'profile';
   onNavigate: (tab: 'home' | 'admin' | 'profile') => void;
   isAdmin: boolean;
+  user: any;
 }
 
-export default function BottomNav({ activeTab, onNavigate, isAdmin }: BottomNavProps) {
-  const { user } = useSupabaseAuth();
-
+export default function BottomNav({ activeTab, onNavigate, isAdmin, user }: BottomNavProps) {
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md">
       <div className="glass h-20 rounded-[2.5rem] border-white/10 shadow-2xl flex items-center justify-around px-4">
@@ -47,7 +45,7 @@ export default function BottomNav({ activeTab, onNavigate, isAdmin }: BottomNavP
           }}
           icon={user ? (
             <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
-              <img src={user.user_metadata?.avatar_url || user.user_metadata?.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} alt="Avatar" className="w-full h-full object-cover" />
+              <img src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`} alt="Avatar" className="w-full h-full object-cover" />
             </div>
           ) : <User size={22} />}
           label={user ? "Me" : "Login"}

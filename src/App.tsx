@@ -6,14 +6,15 @@ import GameDetails from './pages/GameDetails';
 import AdminDashboard from './pages/AdminDashboard';
 import BottomNav from './components/BottomNav';
 import { Game } from './types';
-import { useSupabaseAuth } from './hooks/useSupabaseAuth';
-import { supabase, logout, checkSupabaseConfig } from './lib/supabase';
+import { useFirebaseAuth } from './hooks/useFirebaseAuth';
+import { supabase, checkSupabaseConfig } from './lib/supabase';
+import { logout } from './lib/firebase';
 import { Github, Twitter, Instagram, Youtube, Mail, AlertTriangle, Settings } from 'lucide-react';
 
 import AuthModal from './components/AuthModal';
 
 export default function App() {
-  const { user, loading: loadingAuth, isAdmin } = useSupabaseAuth();
+  const { user, loading: loadingAuth, isAdmin } = useFirebaseAuth();
   const [currentPage, setCurrentPage] = useState<'home' | 'details' | 'admin' | 'profile'>('home');
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -103,6 +104,7 @@ export default function App() {
         onAdminClick={() => navigateToTab('admin')} 
         onLoginClick={() => setShowAuthModal(true)}
         isAdmin={isAdmin} 
+        user={user}
       />
 
       <main className="relative z-10 pb-32">
@@ -133,9 +135,9 @@ export default function App() {
             >
               <div className="glass p-12 rounded-[3.5rem] border-white/5 text-center">
                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-500 mx-auto mb-6 p-1">
-                    <img src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id}`} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                    <img src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.uid}`} alt="Avatar" className="w-full h-full object-cover rounded-full" />
                  </div>
-                 <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-2">{user?.user_metadata?.full_name || user?.user_metadata?.name || 'Ghost User'}</h2>
+                 <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-2">{user?.displayName || 'Ghost User'}</h2>
                  <p className="text-slate-500 text-[10px] font-black tracking-[0.3em] uppercase mb-8">{user?.email}</p>
                  
                  <div className="grid grid-cols-1 gap-4">
@@ -166,7 +168,7 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.4 }}
             >
-              <GameDetails game={selectedGame} onBack={() => navigateToTab('home')} />
+              <GameDetails game={selectedGame} user={user} onBack={() => navigateToTab('home')} />
             </motion.div>
           )}
 
@@ -188,6 +190,7 @@ export default function App() {
         activeTab={currentPage} 
         onNavigate={navigateToTab} 
         isAdmin={isAdmin} 
+        user={user}
       />
 
       <AuthModal 

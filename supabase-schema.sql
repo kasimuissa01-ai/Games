@@ -2,7 +2,7 @@
 
 -- 1. TABLES
 CREATE TABLE IF NOT EXISTS public.profiles (
-  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  id TEXT PRIMARY KEY,
   email TEXT,
   username TEXT,
   avatar_url TEXT,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS public.games (
 
 CREATE TABLE IF NOT EXISTS public.purchases (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL,
+  user_id TEXT NOT NULL,
   user_email TEXT,
   game_id UUID REFERENCES games(id) ON DELETE CASCADE,
   game_title TEXT,
@@ -54,13 +54,12 @@ DROP POLICY IF EXISTS "Auth Update" ON storage.objects;
 DROP POLICY IF EXISTS "Auth Delete" ON storage.objects;
 
 CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'game-assets');
-CREATE POLICY "Auth Insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'game-assets' AND auth.role() = 'authenticated');
-CREATE POLICY "Auth Update" ON storage.objects FOR UPDATE USING (bucket_id = 'game-assets' AND auth.role() = 'authenticated');
-CREATE POLICY "Auth Delete" ON storage.objects FOR DELETE USING (bucket_id = 'game-assets' AND auth.role() = 'authenticated');
+CREATE POLICY "Auth Insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'game-assets');
+CREATE POLICY "Auth Update" ON storage.objects FOR UPDATE USING (bucket_id = 'game-assets');
+CREATE POLICY "Auth Delete" ON storage.objects FOR DELETE USING (bucket_id = 'game-assets');
 
 -- 3. RLS POWERS
 ALTER TABLE public.games ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.purchases ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow Select" ON public.games;
@@ -68,13 +67,10 @@ DROP POLICY IF EXISTS "Allow Admin All" ON public.games;
 CREATE POLICY "Allow Select" ON public.games FOR SELECT USING (true);
 CREATE POLICY "Allow Admin All" ON public.games FOR ALL USING (true); -- TEMPORARY: Relaxed for testing
 
-DROP POLICY IF EXISTS "Profiles Public" ON public.profiles;
-CREATE POLICY "Profiles Public" ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "Profiles Update Own" ON public.profiles FOR UPDATE USING (auth.uid() = id);
-
 DROP POLICY IF EXISTS "Purchases User" ON public.purchases;
-CREATE POLICY "Purchases User" ON public.purchases FOR SELECT USING (auth.uid() = user_id OR true);
-CREATE POLICY "Purchases Insert" ON public.purchases FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Purchases User" ON public.purchases FOR SELECT USING (true);
+CREATE POLICY "Purchases Insert" ON public.purchases FOR INSERT WITH CHECK (true);
+CREATE POLICY "Purchases Admin" ON public.purchases FOR UPDATE USING (true);
 
 -- 4. AUTH TRIGGER
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
