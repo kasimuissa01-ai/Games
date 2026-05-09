@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Game, Purchase } from '../types';
 import { ChevronLeft, Download, ShieldCheck, Zap, Globe, Clock, Star, Share2, CreditCard, Info } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { createPurchase } from '../services/gameService';
 
 import AuthModal from '../components/AuthModal';
@@ -29,54 +30,34 @@ export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
       return;
     }
 
-    const findPurchase = async () => {
-      const { data, error } = await supabase
-        .from('purchases')
-        .select('*')
-        .eq('user_id', user.uid)
-        .eq('game_id', game.id)
-        .order('purchased_at', { ascending: false });
+    const q = query(
+      collection(db, 'purchases'),
+      where('userId', '==', user.uid),
+      where('gameId', '==', game.id)
+    );
 
-      if (data && data.length > 0) {
-        const purchase = data[0];
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        // Sort in memory to get the latest purchase if multiple
+        const docs = snapshot.docs.map(d => d.data());
+        docs.sort((a, b) => new Date(b.purchasedAt || 0).getTime() - new Date(a.purchasedAt || 0).getTime());
+        
+        const purchase = docs[0];
         if (purchase.status === 'confirmed' || purchase.status === 'completed') {
           setPurchaseStatus('confirmed');
         } else if (purchase.status === 'pending') {
           setPurchaseStatus('pending');
+        } else {
+          setPurchaseStatus('none');
         }
       } else {
         setPurchaseStatus('none');
       }
-    };
+    }, (error) => {
+      console.error("Firestore onSnapshot error:", error);
+    });
 
-    findPurchase();
-
-    // Real-time listener for status changes
-    const channel = supabase
-      .channel(`purchase-updates-${user.uid}-${game.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'purchases',
-          filter: `user_id=eq.${user.uid}`
-        },
-        (payload) => {
-          if (payload.new.game_id === game.id) {
-            if (payload.new.status === 'confirmed' || payload.new.status === 'completed') {
-              setPurchaseStatus('confirmed');
-            } else if (payload.new.status === 'pending') {
-              setPurchaseStatus('pending');
-            }
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => unsubscribe();
   }, [user, game.id]);
 
   const handleBuyInitiate = async () => {
