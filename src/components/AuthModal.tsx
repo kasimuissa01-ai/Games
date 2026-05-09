@@ -20,41 +20,45 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-
-    try {
-      console.log(`Attempting ${isLogin ? 'login' : 'signup'} for: ${email}`);
-      if (isLogin) {
-        const data = await signIn(email, password);
-        console.log('Login successful', data);
-        if (onSuccess) onSuccess();
-        onClose();
-      } else {
-        const data = await signUp(email, password, fullName);
-        console.log('Signup result:', data);
-        if (data.session) {
-          console.log('Signup successful, session created');
-          // Logged in immediately
+      setError(null);
+  
+      try {
+        console.log(`Attempting ${isLogin ? 'login' : 'signup'} for: ${email}`);
+        if (isLogin) {
+          const data = await signIn(email, password);
+          console.log('Login successful', data);
           if (onSuccess) onSuccess();
           onClose();
         } else {
-          console.log('Signup successful, but session null (likely needs email confirmation)');
-          // Probably needs email confirmation
-          setError("Account created! PLEASE CHECK YOUR EMAIL for a confirmation link before logging in.");
+          const data = await signUp(email, password, fullName);
+          console.log('Signup result:', data);
+          if (data.session) {
+            console.log('Signup successful, session created');
+            // Logged in immediately
+            if (onSuccess) onSuccess();
+            onClose();
+          } else {
+            console.log('Signup successful, but session null (likely needs email confirmation)');
+            // Probably needs email confirmation
+            setError("Account created! PLEASE CHECK YOUR EMAIL for a confirmation link before logging in.");
+          }
         }
+      } catch (err: any) {
+        console.error('Auth error:', err);
+        let message = err.message || 'Authentication failed';
+        
+        if (message.includes('Email not confirmed')) {
+          message = "EMAIL NOT CONFIRMED. Please check your inbox for a verification link from Supabase.";
+        }
+  
+        if (message.includes('User already registered')) {
+          message = "This email is already registered. Please SWITCH TO LOGIN to access your account.";
+        }
+        
+        setError(message);
+      } finally {
+        setLoading(false);
       }
-    } catch (err: any) {
-      console.error('Auth error:', err);
-      let message = err.message || 'Authentication failed';
-      
-      if (message.includes('Email not confirmed')) {
-        message = "EMAIL NOT CONFIRMED. Please check your inbox for a verification link from Supabase.";
-      }
-      
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (

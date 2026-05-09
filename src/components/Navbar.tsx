@@ -43,10 +43,11 @@ export default function Navbar({ onAdminClick, onLoginClick, isAdmin }: NavbarPr
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onAdminClick}
-            className="p-2 text-slate-400 hover:text-blue-500 transition-colors"
-            title="Admin Dashboard"
+            className="flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-4 py-2 rounded-xl border border-blue-500/30 transition-all shadow-[0_0_20px_rgba(59,130,246,0.1)] group"
+            title="Admin Terminal"
           >
-            <LayoutDashboard size={20} />
+            <LayoutDashboard size={16} className="group-hover:rotate-12 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Admin Terminal</span>
           </motion.button>
         )}
 
