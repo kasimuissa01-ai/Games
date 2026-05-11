@@ -23,7 +23,7 @@ export default function Navbar({ onAdminClick, onLoginClick, isAdmin, user }: Na
             <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
           </div>
           <span className="text-xl font-black tracking-tighter uppercase italic text-white leading-none">
-            Nexus<span className="text-blue-500">Core</span>
+            Home<span className="text-blue-500">OfGames</span>
           </span>
         </motion.div>
 

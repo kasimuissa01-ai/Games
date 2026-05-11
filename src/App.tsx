@@ -21,7 +21,55 @@ export default function App() {
 
   const isConfigured = checkSupabaseConfig();
 
-  const navigateToTab = (tab: 'home' | 'admin' | 'profile' | 'details') => {
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.tab) {
+        setCurrentPage(event.state.tab);
+        if (event.state.game !== undefined) {
+          setSelectedGame(event.state.game);
+        }
+      } else {
+        const hash = window.location.hash.replace('#', '');
+        if (['home', 'admin', 'profile'].includes(hash)) {
+          setCurrentPage(hash as any);
+        } else {
+          setCurrentPage('home');
+        }
+        setSelectedGame(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    if (!window.history.state) {
+      const hash = window.location.hash.replace('#', '');
+      const initialTab = ['home', 'admin', 'profile'].includes(hash) ? hash : 'home';
+      setCurrentPage(initialTab as any);
+      window.history.replaceState({ tab: initialTab, game: null }, '', '#' + initialTab);
+    } else if (window.history.state.tab) {
+      setCurrentPage(window.history.state.tab);
+      if (window.history.state.game) {
+        setSelectedGame(window.history.state.game);
+      }
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (!loadingAuth) {
+      if (currentPage === 'admin' && (!user || !isAdmin)) {
+        setCurrentPage('home');
+        window.history.replaceState({ tab: 'home', game: null }, '', '#home');
+      }
+      if (currentPage === 'profile' && !user) {
+        setCurrentPage('home');
+        window.history.replaceState({ tab: 'home', game: null }, '', '#home');
+      }
+    }
+  }, [loadingAuth, user, isAdmin, currentPage]);
+
+  const navigateToTab = (tab: 'home' | 'admin' | 'profile' | 'details', gameParams?: Game | null) => {
     if (tab === 'admin') {
       if (!user) {
         setShowAuthModal(true);
@@ -33,9 +81,23 @@ export default function App() {
       setShowAuthModal(true);
       return;
     }
+    
     setCurrentPage(tab as any);
-    if (tab === 'home') setSelectedGame(null);
+    let stateGame = selectedGame;
+    
+    if (gameParams !== undefined) {
+      setSelectedGame(gameParams);
+      stateGame = gameParams;
+    } else if (tab === 'home') {
+      setSelectedGame(null);
+      stateGame = null;
+    }
+    
     window.scrollTo(0, 0);
+
+    if (!window.history.state || window.history.state.tab !== tab || (tab === 'details' && window.history.state.game?.id !== stateGame?.id)) {
+      window.history.pushState({ tab, game: stateGame }, '', '#' + tab);
+    }
   };
 
   if (loadingAuth && currentPage === 'home') {
@@ -118,8 +180,7 @@ export default function App() {
               transition={{ duration: 0.4 }}
             >
               <Home onGameSelect={(game) => {
-                setSelectedGame(game);
-                navigateToTab('details');
+                navigateToTab('details', game);
               }} />
             </motion.div>
           )}

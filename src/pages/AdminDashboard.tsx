@@ -176,7 +176,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
            </button>
            <div>
              <h1 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">Admin <span className="text-blue-500">Node</span></h1>
-             <p className="text-slate-500 text-[10px] font-black tracking-[0.3em] uppercase mt-1">NexusCore Asset Management</p>
+             <p className="text-slate-500 text-[10px] font-black tracking-[0.3em] uppercase mt-1">HomeOfGames Asset Management</p>
            </div>
         </div>
         
