@@ -66,12 +66,6 @@ export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
       return;
     }
 
-    if (game.price === 0) {
-      // Free games claim directly
-      await handleConfirmSale();
-      return;
-    }
-
     setShowPaymentModal(true);
   };
 
@@ -202,7 +196,24 @@ export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
                 </div>
 
                 <AnimatePresence mode="wait">
-                  {purchaseStatus === 'confirmed' ? (
+                  {game.price === 0 ? (
+                    <motion.button
+                      key="download-free"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        if (game.downloadUrl && game.downloadUrl.startsWith('http')) {
+                          window.open(game.downloadUrl, '_blank');
+                        } else {
+                          alert("Download link is being prepared. It will be available here soon.");
+                        }
+                      }}
+                      className="w-full py-4 rounded-xl font-black text-xs tracking-[0.2em] flex items-center justify-center gap-3 transition-all uppercase bg-blue-600 hover:bg-blue-500 text-white shadow-neon-blue"
+                    >
+                      <Download size={18} />
+                      DOWNLOAD NOW
+                    </motion.button>
+                  ) : purchaseStatus === 'confirmed' ? (
                     <motion.div 
                       key="confirmed"
                       initial={{ scale: 0.8, opacity: 0 }}
@@ -254,18 +265,14 @@ export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
                       whileTap={{ scale: 0.98 }}
                       disabled={isPurchasing}
                       onClick={handleBuyInitiate}
-                      className={`w-full py-4 rounded-xl font-black text-xs tracking-[0.2em] flex items-center justify-center gap-3 transition-all uppercase ${
-                        game.price === 0 
-                          ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-neon-blue' 
-                          : 'bg-white text-black hover:bg-slate-100'
-                      }`}
+                      className="w-full py-4 rounded-xl font-black text-xs tracking-[0.2em] flex items-center justify-center gap-3 transition-all uppercase bg-white text-black hover:bg-slate-100"
                     >
                       {isPurchasing ? (
                         <div className="w-5 h-5 border-2 border-current border-t-transparent animate-spin rounded-full" />
                       ) : (
                         <>
-                          <Zap size={18} className={game.price === 0 ? 'text-white' : 'text-blue-600'} />
-                          {game.price === 0 ? 'CLAIM ACCESS' : 'NUNUA SASA'}
+                          <Zap size={18} className="text-blue-600" />
+                          NUNUA SASA
                         </>
                       )}
                     </motion.button>
