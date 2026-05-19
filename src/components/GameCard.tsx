@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Game, Platform } from '../types';
-import { Monitor, Smartphone, Gamepad, Trophy } from 'lucide-react';
+import { Monitor, Smartphone, Gamepad, Trophy, Disc } from 'lucide-react';
 
 interface GameCardProps {
   game: Game;
@@ -13,6 +13,7 @@ const platformIcons = {
   [Platform.Mobile]: <Smartphone size={12} />,
   [Platform.Xbox]: <Gamepad size={12} />,
   [Platform.PS]: <Trophy size={12} />,
+  [Platform.PSP]: <Disc size={12} />,
 };
 
 export default function GameCard({ game, onClick }: GameCardProps) {
@@ -55,17 +56,23 @@ export default function GameCard({ game, onClick }: GameCardProps) {
               {game.title}
             </h3>
             <div className="flex items-center gap-1 shrink-0">
-               <span className="text-purple-500 text-[10px]">ETH</span>
-               <span className="text-xs font-bold text-white">
-                  {typeof game.price === 'number' ? (game.price === 0 ? '0' : `${(game.price / 10000).toLocaleString()}`) : 'N/A'}
-               </span>
+               {game.price === 0 ? (
+                 <span className="text-xs font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md border border-green-500/20">FREE</span>
+               ) : (
+                 <>
+                   <span className="text-purple-500 text-[10px]">Tsh</span>
+                   <span className="text-xs font-bold text-white">
+                      {typeof game.price === 'number' ? game.price.toLocaleString() : 'N/A'}
+                   </span>
+                 </>
+               )}
             </div>
           </div>
           
           <button 
             className="w-full py-2.5 rounded-full border border-purple-500/50 text-purple-400 text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 group-hover:bg-purple-500/10 group-hover:border-purple-500 shadow-[0_0_15px_-5px_rgba(168,85,247,0.3)]"
           >
-            Buy Now
+            {game.price === 0 ? 'GET FREE' : 'BUY NOW'}
           </button>
         </div>
       </div>

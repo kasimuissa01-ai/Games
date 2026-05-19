@@ -58,6 +58,7 @@ export default function Home({ onGameSelect }: { onGameSelect: (game: Game) => v
             <FilterItem active={filter === Platform.PC} onClick={() => setFilter(Platform.PC)} label="PC NODE" />
             <FilterItem active={filter === Platform.Mobile} onClick={() => setFilter(Platform.Mobile)} label="MOBILE" />
             <FilterItem active={filter === Platform.Xbox} onClick={() => setFilter(Platform.Xbox)} label="CONSOLE" />
+            <FilterItem active={filter === Platform.PSP} onClick={() => setFilter(Platform.PSP)} label="PSP" />
           </div>
         </div>
       </section>

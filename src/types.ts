@@ -2,7 +2,8 @@ export enum Platform {
   PC = 'PC',
   Mobile = 'Mobile',
   Xbox = 'Xbox',
-  PS = 'PS'
+  PS = 'PS',
+  PSP = 'PSP'
 }
 
 export interface Game {
