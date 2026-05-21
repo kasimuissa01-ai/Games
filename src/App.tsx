@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import GameDetails from './pages/GameDetails';
 import AdminDashboard from './pages/AdminDashboard';
 import BottomNav from './components/BottomNav';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
 import { Game } from './types';
 import { useFirebaseAuth } from './hooks/useFirebaseAuth';
 import { supabase, checkSupabaseConfig } from './lib/supabase';
@@ -253,6 +254,8 @@ export default function App() {
         isAdmin={isAdmin} 
         user={user}
       />
+
+      <FloatingWhatsApp />
 
       <AuthModal 
         isOpen={showAuthModal} 
