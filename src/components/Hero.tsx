@@ -34,17 +34,17 @@ export default function Hero() {
       zIndex = 30;
       opacity = 1;
     } else if (diff === 1) {
-      x = '50%';
-      rotateY = -15;
-      scale = 0.8;
+      x = '32%';
+      rotateY = -8;
+      scale = 0.85;
       zIndex = 20;
-      opacity = 0.6;
+      opacity = 0.45;
     } else if (diff === images.length - 1) {
-      x = '-50%';
-      rotateY = 15;
-      scale = 0.8;
+      x = '-32%';
+      rotateY = 8;
+      scale = 0.85;
       zIndex = 20;
-      opacity = 0.6;
+      opacity = 0.45;
     } else {
       x = '0%';
       rotateY = 0;
@@ -57,7 +57,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative w-screen left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] h-[65vh] md:h-[80vh] overflow-hidden bg-black font-outfit">
+    <section className="relative w-screen left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] h-[54vh] sm:h-[60vh] md:h-[68vh] overflow-hidden bg-black font-outfit pt-20 md:pt-24 pb-4">
       {/* Background blurred image for depth */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center opacity-30 blur-2xl scale-110 transition-all duration-1000"
@@ -84,7 +84,7 @@ export default function Hero() {
                   opacity: styleProps.opacity,
                 }}
                 transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-                className="absolute w-[80%] sm:w-[50%] md:w-[45%] lg:w-[35%] xl:w-[30%] h-[70%] sm:h-[75%] rounded-[2rem] overflow-hidden cursor-pointer"
+                className="absolute w-[88%] sm:w-[72%] md:w-[62%] lg:w-[50%] xl:w-[42%] aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden cursor-pointer"
                 style={{
                   boxShadow: currentIndex === index ? '0 30px 60px -12px rgba(168, 85, 247, 0.5)' : '0 20px 40px -15px rgba(0,0,0,0.8)'
                 }}
@@ -109,7 +109,7 @@ export default function Hero() {
         </AnimatePresence>
       </div>
 
-      <div className="absolute bottom-6 md:bottom-10 z-40 w-full flex justify-center px-4 md:px-10">
+      <div className="absolute bottom-2 md:bottom-4 z-40 w-full flex justify-center px-4 md:px-10">
         <div className="min-h-[3rem] flex items-center justify-center max-w-2xl text-center">
           <TypewriterText text="chagua games upendalo Bure au lipia kidogo tu Kwa game Bora zaidi, pata maelekezo ya jinsi ya kuset files Bure😉" />
         </div>

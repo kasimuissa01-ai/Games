@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getGames, createGame, updateGame, deleteGame, getPurchases, updatePurchaseStatus, uploadImage } from '../services/gameService';
 import { Game, Platform, Purchase } from '../types';
-import { Plus, Trash2, Edit2, X, Save, AlertCircle, Image as ImageIcon, ChevronLeft, CreditCard, Check, ShieldAlert, Upload } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Save, AlertCircle, Image as ImageIcon, ChevronLeft, CreditCard, Check, ShieldAlert, Upload, Heart, Download, BarChart2, Eye, Calendar, Users, Award } from 'lucide-react';
+import { getDailyPlatformViews, getAllGameStats, GameStats, DailyView } from '../services/analyticsService';
 
 export default function AdminDashboard({ onBack }: { onBack: () => void }) {
   const [games, setGames] = useState<Game[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [dailyViews, setDailyViews] = useState<DailyView[]>([]);
+  const [allStats, setAllStats] = useState<{ [gameId: string]: GameStats }>({});
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'games' | 'payments'>('games');
+  const [activeTab, setActiveTab] = useState<'games' | 'payments' | 'analytics'>('games');
   const [isEditing, setIsEditing] = useState(false);
   const [editingGame, setEditingGame] = useState<Partial<Game> | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -20,7 +23,24 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
     if (activeTab === 'payments') {
       loadPurchases();
     }
+    if (activeTab === 'analytics') {
+      loadAnalyticsData();
+    }
   }, [activeTab]);
+
+  const loadAnalyticsData = async () => {
+    setLoading(true);
+    try {
+      const views = await getDailyPlatformViews();
+      const stats = await getAllGameStats();
+      setDailyViews(views);
+      setAllStats(stats);
+    } catch (err) {
+      console.error("Failed to load analytics data", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadGames = async () => {
     setLoading(true);
@@ -182,16 +202,25 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
         
         <div className="flex items-center gap-4 bg-white/5 p-1 rounded-2xl border border-white/10">
           <button 
+            type="button"
             onClick={() => setActiveTab('games')}
             className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'games' ? 'bg-blue-600 text-white shadow-neon-blue' : 'text-slate-500 hover:text-white'}`}
           >
-            Assests
+            Assets
           </button>
           <button 
+            type="button"
             onClick={() => setActiveTab('payments')}
             className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'payments' ? 'bg-blue-600 text-white shadow-neon-blue' : 'text-slate-500 hover:text-white'}`}
           >
             Payment Requests
+          </button>
+          <button 
+            type="button"
+            onClick={() => setActiveTab('analytics')}
+            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'analytics' ? 'bg-blue-600 text-white shadow-neon-blue' : 'text-slate-500 hover:text-white'}`}
+          >
+            Analytics Node
           </button>
         </div>
 
@@ -253,7 +282,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
               </div>
             </motion.div>
           ))
-        ) : (
+        ) : activeTab === 'payments' ? (
           purchases.length === 0 ? (
             <div className="py-20 text-center">
               <CreditCard className="mx-auto text-slate-700 mb-4" size={48} />
@@ -283,6 +312,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
 
                 {pb.status === 'pending' && (
                   <button 
+                    type="button"
                     onClick={() => handleConfirmPayment(pb.id)}
                     className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-green-900/20"
                   >
@@ -293,6 +323,153 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
               </motion.div>
             ))
           )
+        ) : (
+          /* ANALYTICS VIEW PANEL */
+          <div className="space-y-8">
+            {/* Bento-style summary stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass p-6 rounded-3xl border-white/5 flex items-center gap-6 relative overflow-hidden group hover:border-blue-500/20 transition-all duration-300">
+                <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-110 transition-transform">
+                  <Eye size={24} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase">Total Opens</p>
+                  <p className="text-3xl font-black text-white mt-1">
+                    {dailyViews.reduce((acc, curr) => acc + (curr.opens_count || 0), 0).toLocaleString()}
+                  </p>
+                  <p className="text-[9px] font-bold text-blue-400 uppercase tracking-wider mt-0.5">Across Daily Visits</p>
+                </div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
+              </div>
+
+              <div className="glass p-6 rounded-3xl border-white/5 flex items-center gap-6 relative overflow-hidden group hover:border-emerald-500/20 transition-all duration-300">
+                <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-110 transition-transform">
+                  <Download size={24} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase">Game Downloads</p>
+                  <p className="text-3xl font-black text-white mt-1">
+                    {(Object.values(allStats) as GameStats[]).reduce((acc, curr) => acc + (curr.downloads || 0), 0).toLocaleString()}
+                  </p>
+                  <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider mt-0.5">Clipped link counts</p>
+                </div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
+              </div>
+
+              <div className="glass p-6 rounded-3xl border-white/5 flex items-center gap-6 relative overflow-hidden group hover:border-rose-500/20 transition-all duration-300">
+                <div className="w-14 h-14 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-400 shrink-0 group-hover:scale-110 transition-transform">
+                  <Heart size={24} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase">Total Endorsements</p>
+                  <p className="text-3xl font-black text-white mt-1">
+                    {(Object.values(allStats) as GameStats[]).reduce((acc, curr) => acc + (curr.likes || 0), 0).toLocaleString()}
+                  </p>
+                  <p className="text-[9px] font-bold text-rose-400 uppercase tracking-wider mt-0.5">Interactive Likes</p>
+                </div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
+              </div>
+            </div>
+
+            {/* Split layout: Daily Views vs Game performance */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Daily Visitor Metrics */}
+              <div className="lg:col-span-5 glass p-6 rounded-[2rem] border-white/5 flex flex-col h-[520px]">
+                <div className="flex items-center gap-3 mb-6 shrink-0">
+                  <Calendar className="text-blue-500" size={18} />
+                  <h3 className="font-black text-sm text-white uppercase tracking-[0.2em] leading-none">DAILY Access tracker</h3>
+                </div>
+
+                <div className="flex-1 overflow-y-auto pr-2 space-y-4 no-scrollbar">
+                  {dailyViews.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-600">
+                      <BarChart2 size={36} className="mb-2 opacity-50" />
+                      <p className="text-[10px] font-black uppercase tracking-widest">No active visit metrics logs</p>
+                    </div>
+                  ) : (
+                    (() => {
+                      const maxOpens = Math.max(...dailyViews.map(v => v.opens_count || 1), 1);
+                      return dailyViews.map((v, idx) => (
+                        <div key={v.view_date || idx} className="p-3 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-gray-300 uppercase tracking-wider">
+                              {v.view_date ? new Date(v.view_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown date'}
+                            </span>
+                            <span className="text-xs font-black text-blue-400">
+                              {v.opens_count || 0} OPENS
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mt-2.5">
+                            <div 
+                              className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full"
+                              style={{ width: `${Math.max(4, ((v.opens_count || 0) / maxOpens) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ));
+                    })()
+                  )}
+                </div>
+              </div>
+
+              {/* Game popularities directory */}
+              <div className="lg:col-span-7 glass p-6 rounded-[2rem] border-white/5 flex flex-col h-[520px]">
+                <div className="flex items-center gap-3 mb-6 shrink-0">
+                  <Award className="text-purple-500" size={18} />
+                  <h3 className="font-black text-sm text-white uppercase tracking-[0.2em] leading-none">GAME ASSET ENGAGEMENTS</h3>
+                </div>
+
+                <div className="flex-1 overflow-y-auto pr-2 space-y-3 no-scrollbar">
+                  {games.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-600">
+                      <Users size={36} className="mb-2 opacity-50" />
+                      <p className="text-[10px] font-black uppercase tracking-widest">No games loaded in database for evaluation</p>
+                    </div>
+                  ) : (
+                    (() => {
+                      // Sort games descending based on downloads + likes score to render a true leaderboard!
+                      const sortedGames = [...games].sort((a, b) => {
+                        const aStats = allStats[a.id] || { likes: 0, downloads: 0, likedByUserIds: [] };
+                        const bStats = allStats[b.id] || { likes: 0, downloads: 0, likedByUserIds: [] };
+                        return (bStats.downloads + bStats.likes) - (aStats.downloads + aStats.likes);
+                      });
+
+                      return sortedGames.map((game, rank) => {
+                        const gameStat = allStats[game.id] || { likes: 0, downloads: 0, likedByUserIds: [] };
+                        return (
+                          <div key={game.id} className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between hover:border-purple-500/20 transition-all duration-300 group">
+                            <div className="flex items-center gap-4">
+                              <span className="text-xs font-black text-slate-600 w-4 block text-center italic">
+                                #{rank + 1}
+                              </span>
+                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 shrink-0">
+                                <img src={game.imageUrl} className="w-full h-full object-contain" alt="" />
+                              </div>
+                              <div>
+                                <h4 className="font-black text-white text-xs uppercase tracking-wide group-hover:text-purple-400 transition-colors">{game.title}</h4>
+                                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-0.5 block">{game.platform}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/5 rounded-full border border-blue-500/10 text-blue-400">
+                                <Download size={10} />
+                                <span className="text-[9px] font-black tracking-wide">{gameStat.downloads} DLs</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/5 rounded-full border border-rose-500/10 text-rose-400">
+                                <Heart size={10} />
+                                <span className="text-[9px] font-black tracking-wide">{gameStat.likes} likes</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

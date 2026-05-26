@@ -11,6 +11,7 @@ import { useFirebaseAuth } from './hooks/useFirebaseAuth';
 import { supabase, checkSupabaseConfig } from './lib/supabase';
 import { logout } from './lib/firebase';
 import { Github, Twitter, Instagram, Youtube, Mail, AlertTriangle, Settings } from 'lucide-react';
+import { trackPlatformOpen } from './services/analyticsService';
 
 import AuthModal from './components/AuthModal';
 
@@ -21,6 +22,10 @@ export default function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const isConfigured = checkSupabaseConfig();
+
+  useEffect(() => {
+    trackPlatformOpen();
+  }, []);
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
@@ -180,9 +185,13 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <Home onGameSelect={(game) => {
-                navigateToTab('details', game);
-              }} />
+              <Home 
+                onGameSelect={(game) => {
+                  navigateToTab('details', game);
+                }} 
+                user={user}
+                onAuthRequired={() => setShowAuthModal(true)}
+              />
             </motion.div>
           )}
 

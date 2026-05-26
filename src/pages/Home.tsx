@@ -4,6 +4,7 @@ import Hero from "../components/Hero";
 import GameCard from "../components/GameCard";
 import { getGames } from "../services/gameService";
 import { Game, Platform } from "../types";
+import { getAllGameStats, toggleLike, GameStats } from "../services/analyticsService";
 import {
   Monitor,
   Smartphone,
@@ -16,27 +17,71 @@ import {
 
 export default function Home({
   onGameSelect,
+  user,
+  onAuthRequired,
 }: {
   onGameSelect: (game: Game) => void;
+  user: any;
+  onAuthRequired: () => void;
 }) {
   const [games, setGames] = useState<Game[]>([]);
+  const [gameStats, setGameStats] = useState<{ [gameId: string]: GameStats }>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Platform | "ALL">("ALL");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    loadGames();
+    loadGamesAndStats();
   }, [filter]);
 
-  const loadGames = async () => {
+  const loadGamesAndStats = async () => {
     setLoading(true);
     try {
       const fetchedGames = await getGames(filter);
       setGames(fetchedGames);
+      const fetchedStats = await getAllGameStats();
+      setGameStats(fetchedStats);
     } catch (error) {
-      console.error("Failed to load games:", error);
+      console.error("Failed to load games or stats:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLikeToggle = async (gameId: string) => {
+    if (!user) {
+      onAuthRequired();
+      return;
+    }
+
+    const currentStats = gameStats[gameId] || { likes: 0, downloads: 0, likedByUserIds: [] };
+    const isCurrentlyLiked = currentStats.likedByUserIds.includes(user.uid);
+
+    // Optimistic UI updates
+    const updatedLikedUsers = isCurrentlyLiked
+      ? currentStats.likedByUserIds.filter(id => id !== user.uid)
+      : [...currentStats.likedByUserIds, user.uid];
+
+    const updatedLikesCount = isCurrentlyLiked
+      ? Math.max(0, currentStats.likes - 1)
+      : currentStats.likes + 1;
+
+    setGameStats(prev => ({
+      ...prev,
+      [gameId]: {
+        ...currentStats,
+        likes: updatedLikesCount,
+        likedByUserIds: updatedLikedUsers
+      }
+    }));
+
+    try {
+      const likedNow = await toggleLike(gameId, user.uid);
+      // Refetch actual stats in the background to ensure parity
+      const latestStats = await getAllGameStats();
+      setGameStats(latestStats);
+    } catch (err) {
+      console.error("Failed to toggle like on db:", err);
     }
   };
 
@@ -51,8 +96,8 @@ export default function Home({
       <Hero />
 
       {/* Filter and Search Bar */}
-      <section className="px-4 md:px-10 py-8">
-        <div className="flex flex-col gap-6">
+      <section className="px-4 md:px-10 pt-4 pb-2">
+        <div className="flex flex-col gap-4">
           <div className="relative group w-full">
             <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors">
               <Search size={18} />
@@ -97,12 +142,13 @@ export default function Home({
       </section>
 
       {/* Horizontal Carousels */}
-      <section className="space-y-16 pb-32">
+      <section className="pb-20">
         <GameSection
-          title="Available Games"
-          subtitle="Top performing streams"
           games={filteredGames}
+          stats={gameStats}
           loading={loading}
+          user={user}
+          onLike={handleLikeToggle}
           onGameSelect={onGameSelect}
         />
       </section>
@@ -111,36 +157,23 @@ export default function Home({
 }
 
 function GameSection({
-  title,
-  subtitle,
   games,
+  stats,
   loading,
+  user,
+  onLike,
   onGameSelect,
 }: {
-  title: string;
-  subtitle: string;
   games: Game[];
+  stats: { [gameId: string]: GameStats };
   loading: boolean;
+  user: any;
+  onLike: (gameId: string) => void;
   onGameSelect: (game: Game) => void;
 }) {
   return (
-    <div className="space-y-8">
-      <div className="px-6 md:px-12 flex items-end justify-between">
-        <div>
-          <h2 className="text-5xl font-black text-white uppercase italic tracking-tighter leading-none">
-            {title}
-          </h2>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] mt-4">
-            {subtitle}
-          </p>
-        </div>
-        <button className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] hover:text-white transition-all bg-white/5 px-6 py-3 rounded-full border border-white/5">
-          View Archive
-        </button>
-      </div>
-
-      <div className="relative">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 px-4 md:px-12 pb-12">
+    <div className="relative">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 px-4 md:px-12 pb-12">
           {loading ? (
             [1, 2, 3, 4, 5].map((i) => (
               <div
@@ -149,11 +182,22 @@ function GameSection({
               />
             ))
           ) : games.length > 0 ? (
-            games.map((game) => (
-              <div key={game.id} className="w-full">
-                <GameCard game={game} onClick={onGameSelect} />
-              </div>
-            ))
+            games.map((game) => {
+              const gameStat = stats[game.id] || { likes: 0, downloads: 0, likedByUserIds: [] };
+              const hasLiked = user ? gameStat.likedByUserIds.includes(user.uid) : false;
+              return (
+                <div key={game.id} className="w-full">
+                  <GameCard 
+                    game={game} 
+                    onClick={onGameSelect} 
+                    likes={gameStat.likes}
+                    downloads={gameStat.downloads}
+                    hasLiked={hasLiked}
+                    onLike={() => onLike(game.id)}
+                  />
+                </div>
+              );
+            })
           ) : (
             <div className="w-full py-32 text-center glass rounded-[3rem] mx-6 md:mx-12">
               <p className="text-slate-600 text-xs font-black uppercase tracking-[0.5em] italic">
@@ -163,7 +207,6 @@ function GameSection({
           )}
         </div>
       </div>
-    </div>
   );
 }
 

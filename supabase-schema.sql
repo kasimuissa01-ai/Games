@@ -94,3 +94,48 @@ UPDATE public.profiles SET is_admin = true WHERE email = 'tzngondi1699@gmail.com
 UPDATE public.profiles SET is_admin = true WHERE email = 'Andrewseba474@gmail.com';
 
 
+
+-- 6. ANALYTICS & INTERACTION TABLES (LIKES, DOWNLOADS, DAILY VIEWS)
+
+-- Table to track platform daily opens (views)
+CREATE TABLE IF NOT EXISTS public.platform_views (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  view_date DATE DEFAULT CURRENT_DATE UNIQUE,
+  opens_count INTEGER DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Table to track game likes
+CREATE TABLE IF NOT EXISTS public.game_likes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  game_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT unique_game_user_like UNIQUE (game_id, user_id)
+);
+
+-- Table to track game downloads
+CREATE TABLE IF NOT EXISTS public.game_downloads (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  game_id TEXT NOT NULL,
+  user_id TEXT, -- nullable for guest downloads
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Row Level Security (RLS) Enable
+ALTER TABLE public.platform_views ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.game_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.game_downloads ENABLE ROW LEVEL SECURITY;
+
+-- Security Policies (Allow complete access to anyone for public metrics logs)
+DROP POLICY IF EXISTS "Allow platform_views ALL" ON public.platform_views;
+CREATE POLICY "Allow platform_views ALL" ON public.platform_views FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow game_likes ALL" ON public.game_likes;
+CREATE POLICY "Allow game_likes ALL" ON public.game_likes FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow game_downloads ALL" ON public.game_downloads;
+CREATE POLICY "Allow game_downloads ALL" ON public.game_downloads FOR ALL USING (true) WITH CHECK (true);
+
+
+

@@ -1,11 +1,15 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Game, Platform } from '../types';
-import { Monitor, Smartphone, Gamepad, Trophy, Disc } from 'lucide-react';
+import { Monitor, Smartphone, Gamepad, Trophy, Disc, Heart, Download } from 'lucide-react';
 
 interface GameCardProps {
   game: Game;
   onClick: (game: Game) => void;
+  likes?: number;
+  downloads?: number;
+  hasLiked?: boolean;
+  onLike?: (e: React.MouseEvent) => void;
 }
 
 const platformIcons = {
@@ -16,7 +20,7 @@ const platformIcons = {
   [Platform.PSP]: <Disc size={12} />,
 };
 
-export default function GameCard({ game, onClick }: GameCardProps) {
+export default function GameCard({ game, onClick, likes = 0, downloads = 0, hasLiked = false, onLike }: GameCardProps) {
   return (
     <motion.div
       layout
@@ -38,7 +42,33 @@ export default function GameCard({ game, onClick }: GameCardProps) {
           
           <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c14] via-transparent to-transparent opacity-50" />
           
-          {/* Badge */}
+          {/* Like Toggle Floating Badge */}
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onLike) onLike(e);
+            }}
+            className="absolute top-2 left-2 z-20 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/20 transition-all hover:border-rose-500/50 flex items-center gap-1.5 group/like"
+          >
+            <Heart 
+              size={12} 
+              className={`transition-colors duration-300 ${hasLiked ? 'text-rose-500 fill-rose-500 scale-110' : 'text-gray-400 group-hover/like:text-rose-400'}`} 
+            />
+            <span className="text-[9px] font-black tracking-wide text-gray-200">
+              {likes}
+            </span>
+          </button>
+
+          {/* Downloads Floating Badge */}
+          <div className="absolute bottom-2 left-2 z-20 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1">
+            <Download size={10} className="text-blue-400" />
+            <span className="text-[8px] font-black text-gray-200 tracking-wider">
+              {downloads} DL
+            </span>
+          </div>
+
+          {/* Platform Badge */}
           <div className="absolute top-2 right-2 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10">
             <div className="flex items-center gap-1">
               <span className="text-gray-300">{platformIcons[game.platform]}</span>
@@ -70,6 +100,7 @@ export default function GameCard({ game, onClick }: GameCardProps) {
           </div>
           
           <button 
+            type="button"
             className="w-full py-2.5 rounded-full border border-purple-500/50 text-purple-400 text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 group-hover:bg-purple-500/10 group-hover:border-purple-500 shadow-[0_0_15px_-5px_rgba(168,85,247,0.3)]"
           >
             {game.price === 0 ? 'GET FREE' : 'BUY NOW'}
@@ -79,3 +110,4 @@ export default function GameCard({ game, onClick }: GameCardProps) {
     </motion.div>
   );
 }
+
