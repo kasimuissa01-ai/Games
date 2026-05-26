@@ -11,11 +11,6 @@ export interface DailyView {
   opens_count: number;
 }
 
-// Memory fallbacks in case SQL tables aren't set up yet
-const fallbackLikes: { [gameId: string]: string[] } = {};
-const fallbackDownloads: { [gameId: string]: number } = {};
-const fallbackViews: { [date: string]: number } = {};
-
 /**
  * Normalizes date to string (YYYY-MM-DD)
  */
@@ -63,9 +58,7 @@ export async function trackPlatformOpen(): Promise<void> {
 
     sessionStorage.setItem(sessionKey, 'true');
   } catch (err: any) {
-    console.warn('analyticsService: Failed to track platform open on Supabase, falling back to local simulation:', err.message);
-    const today = getTodayString();
-    fallbackViews[today] = (fallbackViews[today] || 0) + 1;
+    console.warn('analyticsService: Failed to track platform open on Supabase:', err.message);
   }
 }
 
@@ -85,7 +78,6 @@ export async function trackDownload(gameId: string, userId?: string): Promise<vo
     if (error) throw error;
   } catch (err: any) {
     console.warn(`analyticsService: Failed to track download for game ${gameId}:`, err.message);
-    fallbackDownloads[gameId] = (fallbackDownloads[gameId] || 0) + 1;
   }
 }
 
@@ -126,18 +118,8 @@ export async function toggleLike(gameId: string, userId: string): Promise<boolea
       return true;
     }
   } catch (err: any) {
-    console.warn(`analyticsService: Failed to toggle like for game ${gameId}:`, err.message);
-    if (!fallbackLikes[gameId]) {
-      fallbackLikes[gameId] = [];
-    }
-    const idx = fallbackLikes[gameId].indexOf(userId);
-    if (idx >= 0) {
-      fallbackLikes[gameId].splice(idx, 1);
-      return false;
-    } else {
-      fallbackLikes[gameId].push(userId);
-      return true;
-    }
+    console.error(`analyticsService: Failed to toggle like for game ${gameId}:`, err.message);
+    throw err;
   }
 }
 
@@ -187,24 +169,8 @@ export async function getAllGameStats(): Promise<{ [gameId: string]: GameStats }
     }
 
   } catch (err: any) {
-    console.warn('analyticsService: Error loading game stats from Supabase, returning fallbacks:', err.message);
+    console.error('analyticsService: Error loading game stats from Supabase:', err.message);
   }
-
-  // Merge fallbacks for robust local rendering
-  Object.keys(fallbackLikes).forEach(gid => {
-    if (!stats[gid]) {
-      stats[gid] = { likes: 0, downloads: 0, likedByUserIds: [] };
-    }
-    stats[gid].likes = fallbackLikes[gid].length;
-    stats[gid].likedByUserIds = [...fallbackLikes[gid]];
-  });
-
-  Object.keys(fallbackDownloads).forEach(gid => {
-    if (!stats[gid]) {
-      stats[gid] = { likes: 0, downloads: 0, likedByUserIds: [] };
-    }
-    stats[gid].downloads = (stats[gid].downloads || 0) + fallbackDownloads[gid];
-  });
 
   return stats;
 }
@@ -223,15 +189,7 @@ export async function getDailyPlatformViews(): Promise<DailyView[]> {
     if (error) throw error;
     return data || [];
   } catch (err: any) {
-    console.warn('analyticsService: Error loading daily opens, returning fallbacks:', err.message);
-    const mockList = Object.keys(fallbackViews).map(d => ({
-      view_date: d,
-      opens_count: fallbackViews[d]
-    }));
-    if (mockList.length === 0) {
-      // Add a placeholder for today so and admin can see something
-      return [{ view_date: getTodayString(), opens_count: 1 }];
-    }
-    return mockList.sort((a,b) => b.view_date.localeCompare(a.view_date));
+    console.error('analyticsService: Error loading daily opens from Supabase:', err.message);
+    return [];
   }
 }
