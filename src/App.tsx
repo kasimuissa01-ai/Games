@@ -7,6 +7,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Chat from './pages/Chat';
 import BottomNav from './components/BottomNav';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
+import InstallAppPrompt from './components/InstallAppPrompt';
 import { Game } from './types';
 import { useFirebaseAuth } from './hooks/useFirebaseAuth';
 import { supabase, checkSupabaseConfig } from './lib/supabase';
@@ -328,6 +329,8 @@ export default function App() {
         isAdmin={isAdmin} 
         user={user}
       />
+
+      <InstallAppPrompt />
 
       {currentPage !== 'chat' && <FloatingWhatsApp />}
 

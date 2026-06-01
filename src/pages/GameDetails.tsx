@@ -153,10 +153,19 @@ export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
               <motion.div 
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className="relative aspect-video rounded-3xl overflow-hidden mb-10 group shadow-2xl"
+                className="relative aspect-video rounded-3xl overflow-hidden mb-10 bg-slate-950/50 border border-white/5 group shadow-2xl flex items-center justify-center"
               >
-                <img src={game.imageUrl} className="w-full h-full object-cover" alt={game.title} />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10 pointer-events-none" />
+                
+                {/* Beautiful progressive loading spinner panel */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-[shimmer_1.6s_infinite] pointer-events-none" />
+                
+                <img 
+                  src={game.imageUrl} 
+                  alt={game.title}
+                  loading="eager"
+                  className="w-full h-full object-cover transition-opacity duration-500"
+                />
               </motion.div>
             )}
 

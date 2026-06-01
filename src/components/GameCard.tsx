@@ -21,6 +21,8 @@ const platformIcons = {
 };
 
 export default function GameCard({ game, onClick, likes = 0, downloads = 0, hasLiked = false, onLike }: GameCardProps) {
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
   return (
     <motion.div
       layout
@@ -33,11 +35,24 @@ export default function GameCard({ game, onClick, likes = 0, downloads = 0, hasL
         className="group relative h-full flex flex-col cursor-pointer bg-gradient-to-b from-[#161625] to-[#0a0a14] border border-white/5 rounded-2xl p-2 sm:p-3 shadow-lg transition-all duration-500 hover:border-purple-500/30 hover:shadow-[0_0_25px_-5px_rgba(168,85,247,0.25)]"
       >
         {/* Image Container */}
-        <div className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#050505] mb-2.5 sm:mb-3.5 border border-white/5 group-hover:border-white/10 transition-colors shrink-0">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#07070d] mb-2.5 sm:mb-3.5 border border-white/5 group-hover:border-white/10 transition-colors shrink-0">
+          
+          {/* High-tech custom shimmering skeleton loader while image is loading */}
+          {!isLoaded && (
+            <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-[shimmer_1.6s_infinite] pointer-events-none" />
+              <div className="w-6 h-6 rounded-full border-2 border-purple-500/20 border-t-purple-500 animate-spin" />
+            </div>
+          )}
+
           <img 
             src={game.imageUrl} 
             alt={game.title}
-            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+            loading="lazy"
+            onLoad={() => setIsLoaded(true)}
+            className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 ${
+              isLoaded ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-95 blur-md"
+            }`}
           />
           
           <div className="absolute inset-0 bg-gradient-to-t from-[#08080f] via-transparent to-transparent opacity-65" />
