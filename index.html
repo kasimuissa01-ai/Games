@@ -2,11 +2,139 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <title>Gamers Hub</title>
+    
+    <!-- Progressive Web App Settings -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0f172a" />
+    
+    <!-- IOS & Android Home Screen Support Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Gamers Hub" />
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" />
+
+    <!-- iOS Startup Images (Splash Screens) -->
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2)" />
+    <link rel="apple-touch-startup-image" href="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Instant HTML/CSS Native Loading Splash Screen for Offline/Slow Network access -->
+      <style>
+        .splash-wrapper {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background-color: #020617;
+          color: #ffffff;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          z-index: 99999;
+          user-select: none;
+        }
+        .splash-logo-container {
+          position: relative;
+          width: 110px;
+          height: 110px;
+          margin-bottom: 24px;
+        }
+        .splash-logo-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+          border: 3px solid rgba(59, 130, 246, 0.4);
+          box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+          animation: splashPulse 2.2s infinite ease-in-out;
+        }
+        .splash-ring {
+          position: absolute;
+          inset: -8px;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          border-top-color: #3b82f6;
+          border-bottom-color: #f43f5e;
+          animation: splashSpin 2.5s linear infinite;
+        }
+        .splash-title {
+          font-size: 20px;
+          font-weight: 900;
+          letter-spacing: 0.35em;
+          text-transform: uppercase;
+          color: #ffffff;
+          margin-bottom: 8px;
+          text-align: center;
+          animation: splashFadeIn 0.8s ease-out;
+        }
+        .splash-subtitle {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.25em;
+          color: #64748b;
+          text-transform: uppercase;
+          text-align: center;
+          margin-bottom: 30px;
+          animation: splashFadeIn 1s ease-out;
+        }
+        .splash-indicator {
+          width: 130px;
+          height: 3px;
+          background-color: rgba(255, 255, 255, 0.08);
+          border-radius: 999px;
+          overflow: hidden;
+        }
+        .splash-progress {
+          width: 0%;
+          height: 100%;
+          background: linear-gradient(90deg, #3b82f6, #f43f5e);
+          border-radius: 999px;
+          animation: progressRun 2s ease-in-out infinite;
+        }
+        @keyframes splashPulse {
+          0%, 100% { transform: scale(1); filter: brightness(1); }
+          50% { transform: scale(1.05); filter: brightness(1.1); }
+        }
+        @keyframes splashSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes splashFadeIn {
+          0% { opacity: 0; transform: translateY(6px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes progressRun {
+          0% { width: 0%; margin-left: 0%; }
+          50% { width: 60%; margin-left: 20%; }
+          100% { width: 100%; margin-left: 100%; }
+        }
+      </style>
+      <div class="splash-wrapper">
+        <div class="splash-logo-container">
+          <div class="splash-ring"></div>
+          <img class="splash-logo-img" src="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" alt="Gamers Hub Logo" />
+        </div>
+        <div class="splash-title">Gamers Hub</div>
+        <div class="splash-subtitle">Premium Game Hub</div>
+        <div class="splash-indicator">
+          <div class="splash-progress"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>

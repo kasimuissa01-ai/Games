@@ -1,17 +1,17 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Home, User, ShoppingBag, LayoutDashboard } from 'lucide-react';
+import { Home, User, ShoppingBag, LayoutDashboard, MessageSquare } from 'lucide-react';
 
 interface BottomNavProps {
-  activeTab: 'home' | 'details' | 'admin' | 'profile';
-  onNavigate: (tab: 'home' | 'admin' | 'profile') => void;
+  activeTab: 'home' | 'details' | 'admin' | 'profile' | 'chat';
+  onNavigate: (tab: 'home' | 'admin' | 'profile' | 'chat') => void;
   isAdmin: boolean;
   user: any;
 }
 
 export default function BottomNav({ activeTab, onNavigate, isAdmin, user }: BottomNavProps) {
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-lg">
       <div className="glass h-20 rounded-[2.5rem] border-white/10 shadow-2xl flex items-center justify-around px-4">
         
         <NavButton 
@@ -20,6 +20,15 @@ export default function BottomNav({ activeTab, onNavigate, isAdmin, user }: Bott
           icon={<Home size={22} />}
           label="Home"
         />
+
+        {/* Hidden for now per user request - to be restored next week
+        <NavButton 
+          active={activeTab === 'chat'} 
+          onClick={() => onNavigate('chat')}
+          icon={<MessageSquare size={22} />}
+          label="Chats"
+        />
+        */}
 
         <NavButton 
           active={false} 

@@ -25,22 +25,22 @@ export default function GameCard({ game, onClick, likes = 0, downloads = 0, hasL
     <motion.div
       layout
       className="h-full"
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       <div 
         onClick={() => onClick(game)}
-        className="group relative h-full flex flex-col cursor-pointer bg-gradient-to-b from-[#1c1c2a] to-[#0f0f1b] border border-white/5 rounded-[1.5rem] p-3 shadow-lg transition-all duration-500 hover:border-purple-500/40 hover:shadow-[0_0_30px_-5px_rgba(168,85,247,0.3)]"
+        className="group relative h-full flex flex-col cursor-pointer bg-gradient-to-b from-[#161625] to-[#0a0a14] border border-white/5 rounded-2xl p-2 sm:p-3 shadow-lg transition-all duration-500 hover:border-purple-500/30 hover:shadow-[0_0_25px_-5px_rgba(168,85,247,0.25)]"
       >
         {/* Image Container */}
-        <div className="relative aspect-[4/5] overflow-hidden rounded-[1.25rem] bg-[#050505] mb-4 border border-white/5 group-hover:border-white/10 transition-colors shrink-0">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#050505] mb-2.5 sm:mb-3.5 border border-white/5 group-hover:border-white/10 transition-colors shrink-0">
           <img 
             src={game.imageUrl} 
             alt={game.title}
             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
           />
           
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c14] via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#08080f] via-transparent to-transparent opacity-65" />
           
           {/* Like Toggle Floating Badge */}
           <button 
@@ -49,61 +49,58 @@ export default function GameCard({ game, onClick, likes = 0, downloads = 0, hasL
               e.stopPropagation();
               if (onLike) onLike(e);
             }}
-            className="absolute top-2 left-2 z-20 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/20 transition-all hover:border-rose-500/50 flex items-center gap-1.5 group/like"
+            className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-20 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-black/75 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/20 transition-all hover:border-rose-500/50 flex items-center gap-1 sm:gap-1.5 group/like"
           >
             <Heart 
-              size={12} 
+              size={11} 
               className={`transition-colors duration-300 ${hasLiked ? 'text-rose-500 fill-rose-500 scale-110' : 'text-gray-400 group-hover/like:text-rose-400'}`} 
             />
-            <span className="text-[9px] font-black tracking-wide text-gray-200">
+            <span className="text-[8px] sm:text-[9px] font-black tracking-wide text-gray-200">
               {likes}
             </span>
           </button>
-
+ 
           {/* Downloads Floating Badge */}
-          <div className="absolute bottom-2 left-2 z-20 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1">
-            <Download size={10} className="text-blue-400" />
-            <span className="text-[8px] font-black text-gray-200 tracking-wider">
+          <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 z-20 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-black/75 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-1">
+            <Download size={9} className="text-blue-400" />
+            <span className="text-[7.5px] sm:text-[8px] font-black text-gray-200 tracking-wider">
               {downloads} DL
             </span>
           </div>
-
+ 
           {/* Platform Badge */}
-          <div className="absolute top-2 right-2 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10">
+          <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-black/75 backdrop-blur-md rounded-full border border-white/10">
             <div className="flex items-center gap-1">
-              <span className="text-gray-300">{platformIcons[game.platform]}</span>
-              <span className="text-[8px] font-bold text-gray-200 tracking-wider">
+              <span className="text-gray-300 scale-90 sm:scale-100">{platformIcons[game.platform]}</span>
+              <span className="text-[7.5px] sm:text-[8px] font-bold text-gray-200 tracking-wider">
                 {game.platform}
               </span>
             </div>
           </div>
         </div>
-
+ 
         {/* Content */}
-        <div className="flex-1 flex flex-col justify-end px-1">
-          <div className="flex justify-between items-center mb-4 shrink-0">
-            <h3 className="font-medium text-xs sm:text-sm text-gray-100 truncate pr-2">
+        <div className="flex-1 flex flex-col justify-between px-0.5">
+          <div className="flex flex-col gap-1 mb-2.5">
+            <h3 className="font-extrabold text-[11px] sm:text-xs md:text-sm text-gray-100 truncate tracking-wide">
               {game.title}
             </h3>
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center">
                {game.price === 0 ? (
-                 <span className="text-xs font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md border border-green-500/20">FREE</span>
+                 <span className="text-[8px] sm:text-[9.5px] font-black text-emerald-400 tracking-widest uppercase">FREE TRIAL</span>
                ) : (
-                 <>
-                   <span className="text-purple-500 text-[10px]">Tsh</span>
-                   <span className="text-xs font-bold text-white">
-                      {typeof game.price === 'number' ? game.price.toLocaleString() : 'N/A'}
-                   </span>
-                 </>
+                 <span className="text-[10px] sm:text-xs font-black text-purple-400 font-mono tracking-wide">
+                    Tsh {typeof game.price === 'number' ? game.price.toLocaleString() : 'N/A'}
+                 </span>
                )}
             </div>
           </div>
           
           <button 
             type="button"
-            className="w-full py-2.5 rounded-full border border-purple-500/50 text-purple-400 text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 group-hover:bg-purple-500/10 group-hover:border-purple-500 shadow-[0_0_15px_-5px_rgba(168,85,247,0.3)]"
+            className="w-full py-1.5 sm:py-2 rounded-xl border border-purple-500/30 text-purple-400 text-[8.5px] sm:text-[10px] font-black tracking-widest transition-all duration-300 group-hover:bg-purple-500/10 group-hover:border-purple-500 group-hover:text-purple-300 uppercase shadow-[0_0_15px_-5px_rgba(168,85,247,0.3)]"
           >
-            {game.price === 0 ? 'GET FREE' : 'BUY NOW'}
+            {game.price === 0 ? 'GET FILE' : 'BUY ASSET'}
           </button>
         </div>
       </div>

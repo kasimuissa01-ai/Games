@@ -1,148 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-
-const images = [
-  "https://i.postimg.cc/rswLLfgB/0603cfc04022f9e351ef666d9f44ef68.jpg",
-  "https://i.postimg.cc/vZNT2V8Q/IMG-20260521-002440.jpg",
-  "https://i.postimg.cc/XqY00sQS/b590a7810fed9b46df7e1605dd3d0e32.jpg",
-  "https://i.postimg.cc/pXmhtVrs/6267e906163112870821d978e30a8437.jpg"
-];
+import React from 'react';
+import { motion } from 'motion/react';
 
 export default function Hero() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const getCardStyle = (index: number) => {
-    const diff = (index - currentIndex + images.length) % images.length;
-    
-    let x = '0%';
-    let rotateY = 0;
-    let scale = 1;
-    let zIndex = 30;
-    let opacity = 1;
-
-    if (diff === 0) {
-      x = '0%';
-      rotateY = 0;
-      scale = 1;
-      zIndex = 30;
-      opacity = 1;
-    } else if (diff === 1) {
-      x = '32%';
-      rotateY = -8;
-      scale = 0.85;
-      zIndex = 20;
-      opacity = 0.45;
-    } else if (diff === images.length - 1) {
-      x = '-32%';
-      rotateY = 8;
-      scale = 0.85;
-      zIndex = 20;
-      opacity = 0.45;
-    } else {
-      x = '0%';
-      rotateY = 0;
-      scale = 0.6;
-      zIndex = 10;
-      opacity = 0;
-    }
-
-    return { x, rotateY, scale, zIndex, opacity };
-  };
-
   return (
-    <section className="relative w-screen left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] h-[54vh] sm:h-[60vh] md:h-[68vh] overflow-hidden bg-black font-outfit pt-20 md:pt-24 pb-4">
-      {/* Background blurred image for depth */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center opacity-30 blur-2xl scale-110 transition-all duration-1000"
-        style={{ backgroundImage: `url(${images[currentIndex]})` }}
-      />
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-[#12121f]/80 to-[rgba(12,12,20,1)] pointer-events-none" />
-      
-      <div 
-        className="relative w-full h-full max-w-7xl mx-auto flex items-center justify-center px-4"
-        style={{ perspective: 1200, transformStyle: 'preserve-3d' }}
+    <div className="w-full relative px-0 pt-0 pb-10 select-none overflow-hidden">
+      {/* Immersive ambient outer background glows leaking from the cinematic image */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[350px] bg-blue-500/20 rounded-full blur-[140px] pointer-events-none -z-10 animate-pulse duration-[8s]" />
+      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[550px] h-[350px] bg-purple-500/20 rounded-full blur-[160px] pointer-events-none -z-10 animate-pulse duration-[12s]" />
+
+      {/* Full-width container spanning edge-to-edge horizontally */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.99, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative w-full overflow-hidden border-b border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.8)] aspect-[21/9] sm:aspect-[24/8] md:aspect-[24/7] min-h-[300px] sm:min-h-[420px] md:min-h-[500px] lg:min-h-[580px]"
       >
-        <AnimatePresence initial={false}>
-          {images.map((src, index) => {
-            const styleProps = getCardStyle(index);
-            return (
-              <motion.div
-                key={src}
-                initial={false}
-                animate={{
-                  x: styleProps.x,
-                  rotateY: styleProps.rotateY,
-                  scale: styleProps.scale,
-                  zIndex: styleProps.zIndex,
-                  opacity: styleProps.opacity,
-                }}
-                transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-                className="absolute w-[88%] sm:w-[72%] md:w-[62%] lg:w-[50%] xl:w-[42%] aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden cursor-pointer"
-                style={{
-                  boxShadow: currentIndex === index ? '0 30px 60px -12px rgba(168, 85, 247, 0.5)' : '0 20px 40px -15px rgba(0,0,0,0.8)'
-                }}
-                onClick={() => setCurrentIndex(index)}
-              >
-                <img src={src} alt={`Slide ${index + 1}`} className="w-full h-full object-cover object-center" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c14]/80 via-transparent to-transparent pointer-events-none" />
-                
-                {currentIndex === index && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="absolute bottom-6 left-6 right-6 hidden md:flex items-center justify-center pointer-events-none"
-                  >
-                    <div className="w-16 h-1.5 bg-purple-500 rounded-full shadow-[0_0_15px_rgba(168,85,247,1)]" />
-                  </motion.div>
-                )}
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </div>
+        {/* Cinematic highly-inspiring professional gaming/esports tournament arena and community setup */}
+        <div className="absolute inset-0 w-full h-full">
+          <img
+            src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=2500&q=95"
+            alt="Gamers Genge Premium Esports Arena & Community Hub"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover opacity-100 scale-100 transition-transform duration-[12s] ease-out hover:scale-105"
+          />
+          
+          {/* Edge fades and elegant dark vignette to naturally blend the image into our website theme */}
+          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-slate-950/50 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-slate-950/50 via-transparent to-transparent pointer-events-none" />
 
-      <div className="absolute bottom-2 md:bottom-4 z-40 w-full flex justify-center px-4 md:px-10">
-        <div className="min-h-[3rem] flex items-center justify-center max-w-2xl text-center">
-          <TypewriterText text="chagua games upendalo Bure au lipia kidogo tu Kwa game Bora zaidi, pata maelekezo ya jinsi ya kuset files Bure😉" />
+          {/* Epic ambient blue/cyan lens glow overlay mimicking esports light leakage */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.1),transparent_50%)] mix-blend-screen pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(168,85,247,0.1),transparent_50%)] mix-blend-screen pointer-events-none" />
         </div>
-      </div>
-    </section>
+
+        {/* Decorative cybernetic scanning lines/grid glow at the very top and bottom borders */}
+        <div className="absolute bottom-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+      </motion.div>
+    </div>
   );
 }
 
-function TypewriterText({ text }: { text: string }) {
-  const [displayText, setDisplayText] = useState("");
-
-  useEffect(() => {
-    let i = 0;
-    setDisplayText("");
-    const timer = setInterval(() => {
-      if (i < text.length) {
-        setDisplayText((prev) => prev + text.charAt(i));
-        i++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 40);
-    return () => clearInterval(timer);
-  }, [text]);
-
-  return (
-    <p className="text-xs md:text-sm font-bold text-slate-300 drop-shadow-md tracking-wide leading-relaxed">
-      {displayText}
-      <motion.span
-        animate={{ opacity: [1, 0, 1] }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        className="inline-block w-[2px] h-[1em] bg-purple-500 ml-1 translate-y-[0.1em]"
-      />
-    </p>
-  );
-}

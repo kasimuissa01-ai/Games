@@ -1,6 +1,8 @@
 {
-  "name": "",
-  "description": "",
+  "name": "Gamers Hub",
+  "description": "Gamers Hub premium gaming database showcase offering highly optimized downloads, console presets, and portable PSP emulator setup guides.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

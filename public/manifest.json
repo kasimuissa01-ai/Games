@@ -1,0 +1,31 @@
+{
+  "name": "Gamers Hub",
+  "short_name": "Gamers Hub",
+  "description": "Gamers Hub premium gaming database showcase and community hub.",
+  "id": "/",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ]
+}

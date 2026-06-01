@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import GameDetails from './pages/GameDetails';
 import AdminDashboard from './pages/AdminDashboard';
+import Chat from './pages/Chat';
 import BottomNav from './components/BottomNav';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import { Game } from './types';
@@ -12,31 +13,55 @@ import { supabase, checkSupabaseConfig } from './lib/supabase';
 import { logout } from './lib/firebase';
 import { Github, Twitter, Instagram, Youtube, Mail, AlertTriangle, Settings } from 'lucide-react';
 import { trackPlatformOpen } from './services/analyticsService';
+import { initGoogleAnalytics, trackGAPageView } from './services/googleAnalytics';
 
 import AuthModal from './components/AuthModal';
 
 export default function App() {
   const { user, loading: loadingAuth, isAdmin } = useFirebaseAuth();
-  const [currentPage, setCurrentPage] = useState<'home' | 'details' | 'admin' | 'profile'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'details' | 'admin' | 'profile' | 'chat'>('home');
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   const isConfigured = checkSupabaseConfig();
 
   useEffect(() => {
+    initGoogleAnalytics();
     trackPlatformOpen();
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 1800);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
+    if (currentPage === 'details' && selectedGame) {
+      trackGAPageView('details', `Game Details: ${selectedGame.title}`);
+    } else {
+      trackGAPageView(currentPage);
+    }
+  }, [currentPage, selectedGame]);
+
+  useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
+      const currentHash = window.location.hash.replace('#', '');
+      if (currentHash.startsWith('join-')) {
+        const kijiweId = currentHash.replace('join-', '');
+        setCurrentPage('chat');
+        window.history.replaceState({ tab: 'chat', game: null }, '', `#chat?kijiweId=${kijiweId}`);
+        return;
+      }
+
       if (event.state && event.state.tab) {
         setCurrentPage(event.state.tab);
         if (event.state.game !== undefined) {
           setSelectedGame(event.state.game);
         }
       } else {
-        const hash = window.location.hash.replace('#', '');
-        if (['home', 'admin', 'profile'].includes(hash)) {
+        const hashWithQuery = window.location.hash.replace('#', '');
+        const hash = hashWithQuery.split('?')[0];
+        if (['home', 'admin', 'profile', 'chat'].includes(hash)) {
           setCurrentPage(hash as any);
         } else {
           setCurrentPage('home');
@@ -47,11 +72,17 @@ export default function App() {
 
     window.addEventListener('popstate', handlePopState);
 
-    if (!window.history.state) {
-      const hash = window.location.hash.replace('#', '');
-      const initialTab = ['home', 'admin', 'profile'].includes(hash) ? hash : 'home';
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash.startsWith('join-')) {
+      const kijiweId = initialHash.replace('join-', '');
+      setCurrentPage('chat');
+      window.history.replaceState({ tab: 'chat', game: null }, '', `#chat?kijiweId=${kijiweId}`);
+    } else if (!window.history.state) {
+      const hashWithQuery = window.location.hash.replace('#', '');
+      const hash = hashWithQuery.split('?')[0];
+      const initialTab = ['home', 'admin', 'profile', 'chat'].includes(hash) ? hash : 'home';
       setCurrentPage(initialTab as any);
-      window.history.replaceState({ tab: initialTab, game: null }, '', '#' + initialTab);
+      window.history.replaceState({ tab: initialTab, game: null }, '', window.location.hash || '#' + initialTab);
     } else if (window.history.state.tab) {
       setCurrentPage(window.history.state.tab);
       if (window.history.state.game) {
@@ -75,7 +106,7 @@ export default function App() {
     }
   }, [loadingAuth, user, isAdmin, currentPage]);
 
-  const navigateToTab = (tab: 'home' | 'admin' | 'profile' | 'details', gameParams?: Game | null) => {
+  const navigateToTab = (tab: 'home' | 'admin' | 'profile' | 'details' | 'chat', gameParams?: Game | null) => {
     if (tab === 'admin') {
       if (!user) {
         setShowAuthModal(true);
@@ -106,66 +137,88 @@ export default function App() {
     }
   };
 
-  if (loadingAuth && currentPage === 'home') {
-    return (
-      <div className="min-h-screen bg-[#020617] flex items-center justify-center">
-        <motion.div 
-          animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
-
-  if (!isConfigured) {
-    return (
-      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-6 text-center">
-        <div className="glass max-w-md p-10 rounded-[3rem] border-white/10">
-          <div className="w-20 h-20 bg-yellow-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 text-yellow-500">
-            <AlertTriangle size={40} />
-          </div>
-          <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4">
-            Connection <span className="text-yellow-500">Offline</span>
-          </h1>
-          <p className="text-slate-400 text-xs font-black uppercase tracking-[0.2em] mb-10 leading-relaxed">
-            Please configure your <span className="text-blue-500">Supabase</span> credentials in the environment variables to initialize the system.
-          </p>
-          <div className="space-y-4">
-            <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-left">
-              <p className="text-[10px] text-slate-500 font-bold mb-2 uppercase tracking-widest">Required Keys:</p>
-              <code className="text-[10px] text-blue-400 block break-all font-mono">VITE_SUPABASE_URL</code>
-              <code className="text-[10px] text-blue-400 block break-all font-mono">VITE_SUPABASE_ANON_KEY</code>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative min-h-screen bg-[#020617] selection:bg-blue-500/30 overflow-x-hidden">
+      {/* Premium Cinematic Splash Screen Overlay */}
+      <AnimatePresence>
+        {(showSplash || loadingAuth) && (
+          <motion.div 
+            key="pwa-splash"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center z-[9999]"
+          >
+            {/* Ambient Background Glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-blue-500/10 blur-[120px] rounded-full" />
+              <div className="absolute bottom-[20%] left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-rose-500/10 blur-[120px] rounded-full" />
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center px-6 text-center">
+              {/* Outer Glow Ring spinner */}
+              <div className="relative w-28 h-28 mb-8">
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 2.8, ease: "linear" }}
+                  className="absolute inset-[-10px] rounded-full border-2 border-transparent border-t-blue-500 border-b-rose-500 opacity-80"
+                />
+                
+                {/* User's specified custom logo rendering beautifully */}
+                <motion.img 
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: [1, 1.04, 1] }}
+                  transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+                  src="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg"
+                  alt="Gamers Hub Logo"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover rounded-full border-[3px] border-slate-900 shadow-[0_0_40px_rgba(59,130,246,0.35)]"
+                />
+              </div>
+
+              {/* Title & Slogan matching PWA settings */}
+              <motion.h1 
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.5 }}
+                className="font-anton text-3xl sm:text-4xl tracking-[0.35em] text-white uppercase mb-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+              >
+                Gamers Hub
+              </motion.h1>
+              
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 }}
+                className="text-slate-500 text-xs uppercase tracking-[0.25em] font-black mb-8"
+              >
+                Premium Game Hub
+              </motion.p>
+
+              {/* Smooth endless progress corridor */}
+              <div className="w-36 h-[3px] bg-white/5 rounded-full overflow-hidden relative border border-white/5">
+                <motion.div 
+                  initial={{ left: "-100%" }}
+                  animate={{ left: "100%" }}
+                  transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                  className="absolute top-0 bottom-0 w-24 bg-gradient-to-r from-blue-500 via-purple-500 to-rose-500 rounded-full"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Floating Demo Mode Badge */}
+      {!isConfigured && (
+        <div className="fixed bottom-4 left-4 z-50 flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 text-[9px] font-black tracking-widest uppercase px-3.5 py-1.5 rounded-full select-none backdrop-blur-md shadow-lg">
+          <AlertTriangle size={10} className="animate-pulse" /> Local Mode
+        </div>
+      )}
+
       {/* Background Atmosphere */}
       <div className="bg-atmosphere">
         <div className="blur-blue"></div>
         <div className="blur-red"></div>
-      </div>
-
-      {/* Minimal Logo */}
-      <div className="fixed top-8 left-10 z-[60]">
-        <motion.div 
-          className="flex items-center gap-2 cursor-pointer group"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigateToTab('home')}
-        >
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-neon-blue">
-            <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
-          </div>
-          <span className="text-xl md:text-2xl font-black tracking-tighter uppercase italic text-white leading-none hidden sm:block">
-            Nexus<span className="text-blue-500">Core</span>
-          </span>
-        </motion.div>
       </div>
 
       <Navbar 
@@ -175,7 +228,7 @@ export default function App() {
         user={user}
       />
 
-      <main className="relative z-10 pb-32">
+      <main className={`relative z-10 ${currentPage === "chat" ? "" : "pb-32"}`}>
         <AnimatePresence mode="wait">
           {currentPage === 'home' && (
             <motion.div
@@ -254,6 +307,18 @@ export default function App() {
               <AdminDashboard onBack={() => navigateToTab('home')} />
             </motion.div>
           )}
+
+          {currentPage === 'chat' && (
+            <motion.div
+              key="chat"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Chat user={user} />
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
@@ -264,7 +329,7 @@ export default function App() {
         user={user}
       />
 
-      <FloatingWhatsApp />
+      {currentPage !== 'chat' && <FloatingWhatsApp />}
 
       <AuthModal 
         isOpen={showAuthModal} 

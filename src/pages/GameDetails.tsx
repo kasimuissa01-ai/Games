@@ -6,6 +6,7 @@ import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { createPurchase } from '../services/gameService';
 import { trackDownload } from '../services/analyticsService';
+import { trackGAEvent } from '../services/googleAnalytics';
 
 import AuthModal from '../components/AuthModal';
 
@@ -31,35 +32,43 @@ export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
       return;
     }
 
-    const q = query(
-      collection(db, 'purchases'),
-      where('userId', '==', user.uid),
-      where('gameId', '==', game.id)
-    );
+    let unsubscribe: (() => void) | null = null;
+    const timer = setTimeout(() => {
+      const q = query(
+        collection(db, 'purchases'),
+        where('userId', '==', user.uid),
+        where('gameId', '==', game.id)
+      );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        // Sort in memory to get the latest purchase if multiple
-        const docs = snapshot.docs.map(d => d.data());
-        docs.sort((a, b) => new Date(b.purchasedAt || 0).getTime() - new Date(a.purchasedAt || 0).getTime());
-        
-        const purchase = docs[0];
-        if (purchase.status === 'confirmed' || purchase.status === 'completed') {
-          setPurchaseStatus('confirmed');
-        } else if (purchase.status === 'pending') {
-          setPurchaseStatus('pending');
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          // Sort in memory to get the latest purchase if multiple
+          const docs = snapshot.docs.map(d => d.data());
+          docs.sort((a, b) => new Date(b.purchasedAt || 0).getTime() - new Date(a.purchasedAt || 0).getTime());
+          
+          const purchase = docs[0];
+          if (purchase.status === 'confirmed' || purchase.status === 'completed') {
+            setPurchaseStatus('confirmed');
+          } else if (purchase.status === 'pending') {
+            setPurchaseStatus('pending');
+          } else {
+            setPurchaseStatus('none');
+          }
         } else {
           setPurchaseStatus('none');
         }
-      } else {
-        setPurchaseStatus('none');
-      }
-    }, (error) => {
-      console.error("Firestore onSnapshot error:", error);
-    });
+      }, (error) => {
+        console.error("Firestore onSnapshot error:", error);
+      });
+    }, 100);
 
-    return () => unsubscribe();
-  }, [user, game.id]);
+    return () => {
+      clearTimeout(timer);
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user?.uid, game.id]);
 
   const handleBuyInitiate = async () => {
     if (!user) {
@@ -203,6 +212,7 @@ export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
+                        trackGAEvent('game_download_click', 'E-commerce', game.title);
                         if (game.downloadUrl && game.downloadUrl.startsWith('http')) {
                           trackDownload(game.id, user?.uid);
                           window.open(game.downloadUrl, '_blank');
@@ -232,6 +242,7 @@ export default function GameDetails({ game, user, onBack }: GameDetailsProps) {
                         animate={{ y: 0, opacity: 1 }}
                         className="w-full py-4 bg-white text-black rounded-xl font-black text-xs tracking-[0.2em] flex items-center justify-center gap-3 hover:translate-y-[-2px] transition-all shadow-xl uppercase shadow-green-900/10"
                         onClick={() => {
+                          trackGAEvent('premium_game_download_click', 'E-commerce', game.title);
                           if (game.downloadUrl && game.downloadUrl.startsWith('http')) {
                             trackDownload(game.id, user?.uid);
                             window.open(game.downloadUrl, '_blank');

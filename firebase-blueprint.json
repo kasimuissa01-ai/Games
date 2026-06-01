@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "kijiwe": {
+      "title": "Kijiwe",
+      "description": "A community gaming chat group or channel called Kijiwe",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The custom name of the Kijiwe channel" },
+        "imageUrl": { "type": "string", "description": "Cover picture URL of the Kijiwe channel, optionally uploaded to Supabase Storage" },
+        "description": { "type": "string", "description": "Optional sub-description of what this specific collective workspace talks about" },
+        "createdBy": { "type": "string", "description": "The visible nickname who organized this group" },
+        "createdById": { "type": "string", "description": "The Firebase User Auth UID of the creator" },
+        "createdAt": { "type": "string", "description": "String representation or timestamp of creation date" }
+      },
+      "required": ["name", "imageUrl", "createdBy", "createdById", "createdAt"]
+    },
+    "chatMessage": {
+      "title": "ChatMessage",
+      "description": "A single community chat or shout message inside a specific Kijiwe",
+      "type": "object",
+      "properties": {
+        "kijiweId": { "type": "string", "description": "Reference identifier of the parent Kijiwe" },
+        "sender": { "type": "string", "description": "Friendly nick of the sender" },
+        "senderId": { "type": "string", "description": "Original Firebase User Auth UID of the sender or guest identifier" },
+        "avatar": { "type": "string", "description": "Dicebear avatar SVG reference or user account avatar" },
+        "content": { "type": "string", "description": "Raw character content of the text message" },
+        "createdAt": { "type": "string", "description": "ISO format timestamp or string representation of date and time of dispatch for chronological query ordering" }
+      },
+      "required": ["kijiweId", "sender", "senderId", "avatar", "content", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/vijiwe/{kijiweId}": {
+      "schema": "kijiwe",
+      "description": "Community Vijiwe lists visible globally for gamers to chat"
+    },
+    "/vijiwe/{kijiweId}/messages/{messageId}": {
+      "schema": "chatMessage",
+      "description": "Realtime chat message log inside a specific Kijiwe"
+    }
+  }
+}
