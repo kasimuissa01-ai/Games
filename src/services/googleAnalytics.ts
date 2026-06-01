@@ -1,5 +1,5 @@
 /**
- * Google Analytics 4 (GA4) Integration Service for Gamers Genge
+ * Google Analytics 4 (GA4) Integration Service for Gamers Hub
  * Dynamically loads and handles client-side event & pageview tracking.
  */
 
@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-VS3CFLSWEZ';
+const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-0T0XPWEYE9';
 
 /**
  * Initializes the Google Analytics 4 tag dynamically in the head if MEASUREMENT_ID exists.
@@ -67,7 +67,7 @@ export function trackGAPageView(pageName: string, title?: string): void {
 
   try {
     window.gtag('event', 'page_view', {
-      page_title: title || `${pageName.toUpperCase()} | Gamers Genge`,
+      page_title: title || `${pageName.toUpperCase()} | Gamers Hub`,
       page_location: `${window.location.origin}/#${pageName}`,
       page_path: `/#${pageName}`,
       send_to: MEASUREMENT_ID
