@@ -136,12 +136,12 @@ export default function InstallAppPrompt() {
                   <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 border border-white/10 shadow-lg bg-slate-900 flex items-center justify-center p-0.5">
                     <img 
                       src="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg" 
-                      alt="Gamers Hub Logo" 
+                      alt="GAMES HOME Logo" 
                       className="w-full h-full object-cover rounded-[0.85rem]"
                     />
                   </div>
                   <div>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Gamers Hub App</h4>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-white">GAMES HOME App</h4>
                     <p className="text-[10px] font-bold text-slate-400 mt-0.5 leading-relaxed">
                       Weka Programu sasa kwa Android, iOS na PC kwa uzoefu wa haraka na uokoaji wa bando la data!
                     </p>

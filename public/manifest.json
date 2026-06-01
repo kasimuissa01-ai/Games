@@ -1,7 +1,7 @@
 {
-  "name": "Gamers Hub",
-  "short_name": "Gamers Hub",
-  "description": "Gamers Hub premium gaming database showcase and community hub.",
+  "name": "GAMES HOME",
+  "short_name": "GAMES HOME",
+  "description": "GAMES HOME premium gaming database showcase and community hub.",
   "id": "/",
   "start_url": "/",
   "display": "standalone",

@@ -33,7 +33,7 @@ export default function Navbar({ onAdminClick, onLoginClick, isAdmin, user }: Na
         {user ? (
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-block text-[10px] font-black tracking-widest text-slate-800 uppercase bg-white/80 px-2 py-1 rounded-md backdrop-blur-xs select-none">
-              {user.displayName || 'Gamers Hub'}
+              {user.displayName || 'GAMES HOME'}
             </span>
             <motion.div 
               whileHover={{ scale: 1.05 }}

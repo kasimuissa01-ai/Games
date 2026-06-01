@@ -14,7 +14,7 @@ import { supabase, checkSupabaseConfig } from './lib/supabase';
 import { logout } from './lib/firebase';
 import { Github, Twitter, Instagram, Youtube, Mail, AlertTriangle, Settings } from 'lucide-react';
 import { trackPlatformOpen } from './services/analyticsService';
-import { initGoogleAnalytics, trackGAPageView } from './services/googleAnalytics';
+import { initGoogleAnalytics, trackGAPageView, setGAUser } from './services/googleAnalytics';
 
 import AuthModal from './components/AuthModal';
 
@@ -35,6 +35,12 @@ export default function App() {
     }, 1800);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!loadingAuth) {
+      setGAUser(user);
+    }
+  }, [user, loadingAuth]);
 
   useEffect(() => {
     if (currentPage === 'details' && selectedGame) {
@@ -171,7 +177,7 @@ export default function App() {
                   animate={{ scale: [1, 1.04, 1] }}
                   transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
                   src="https://i.postimg.cc/mgH2J9Ly/1ced088596254ce6778c7ffe66534f37.jpg"
-                  alt="Gamers Hub Logo"
+                  alt="GAMES HOME Logo"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover rounded-full border-[3px] border-slate-900 shadow-[0_0_40px_rgba(59,130,246,0.35)]"
                 />
@@ -184,7 +190,7 @@ export default function App() {
                 transition={{ delay: 0.25, duration: 0.5 }}
                 className="font-anton text-3xl sm:text-4xl tracking-[0.35em] text-white uppercase mb-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
               >
-                Gamers Hub
+                GAMES HOME
               </motion.h1>
               
               <motion.p 

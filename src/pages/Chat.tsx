@@ -87,7 +87,7 @@ interface RoomCodeEntry {
 export const DEFAULT_VIJIWE: Kijiwe[] = [
   {
     id: 'lounge',
-    name: 'Gamers Hub Lounge',
+    name: 'GAMES HOME Lounge',
     imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=300',
     description: 'Kijiwe kikuu cha wachezaji wote Tanzania. Soga, mechi, na kubadilishana magemu zote hapa.',
     createdBy: 'Hub Bot',
