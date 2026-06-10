@@ -50,10 +50,10 @@ export function initGoogleAnalytics(): void {
 
     // Create the global dataLayer and gtag handler
     window.dataLayer = window.dataLayer || [];
-    window.gtag = function(...args: any[]) {
-      if (window.dataLayer) {
-        window.dataLayer.push(args);
-      }
+    window.gtag = function() {
+      // Use arguments keyword directly to match exact Google Analytics library standard
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer!.push(arguments);
     };
 
     const anonymousId = getOrCreateAnonymousId();

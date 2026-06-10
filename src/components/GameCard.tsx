@@ -4,6 +4,7 @@ import { Game, Platform } from '../types';
 import { Monitor, Smartphone, Gamepad, Trophy, Disc, Heart, Download } from 'lucide-react';
 
 interface GameCardProps {
+  key?: React.Key;
   game: Game;
   onClick: (game: Game) => void;
   likes?: number;

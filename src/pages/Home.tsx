@@ -175,19 +175,12 @@ function GameSection({
 }) {
   if (loading) {
     return (
-      <div className="space-y-12 px-4 md:px-12">
-        {[1, 2, 3].map((rowIndex) => (
-          <div key={rowIndex} className="space-y-4">
-            <div className="h-6 w-48 bg-white/5 rounded-md animate-pulse" />
-            <div className="flex gap-4 md:gap-6 overflow-x-hidden pb-4">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="flex-none w-[calc(50%-8px)] sm:w-[calc(33.33%-12px)] md:w-[calc(25%-18px)] lg:w-[calc(20%-20px)] xl:w-[calc(16.66%-20px)] aspect-[4/5] rounded-[1.5rem] bg-white/5 animate-pulse border border-white/10"
-                />
-              ))}
-            </div>
-          </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 px-4 md:px-12">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div
+            key={i}
+            className="w-full aspect-[4/5] rounded-[1.5rem] bg-white/5 animate-pulse border border-white/10"
+          />
         ))}
       </div>
     );
@@ -205,125 +198,34 @@ function GameSection({
     );
   }
 
-  // Segment games across 4 distinct independent horizontal scroll lists
-  const rowConfigurations = [
-    { title: "🔥 POPULAR NOW", games: [] as Game[] },
-    { title: "⚡ NEW ARRIVALS", games: [] as Game[] },
-    { title: "🏆 TOP RATED", games: [] as Game[] },
-    { title: "🌟 SPECIAL SELECTIONS", games: [] as Game[] },
-  ];
-
-  // Distribute games cleanly across the rows
-  games.forEach((game, index) => {
-    const targetRow = index % 4;
-    rowConfigurations[targetRow].games.push(game);
-  });
-
-  // Filter out any row configurations that ended up with 0 games to keep layout compact
-  const activeRows = rowConfigurations.filter(row => row.games.length > 0);
-
   return (
-    <div className="space-y-12">
-      {activeRows.map((rowConfig, index) => (
-        <CarouselRow
-          key={index}
-          title={rowConfig.title}
-          games={rowConfig.games}
-          stats={stats}
-          user={user}
-          onLike={onLike}
-          onGameSelect={onGameSelect}
-        />
-      ))}
-    </div>
-  );
-}
-
-function CarouselRow({
-  title,
-  games,
-  stats,
-  user,
-  onLike,
-  onGameSelect,
-}: {
-  title: string;
-  games: Game[];
-  stats: { [gameId: string]: GameStats };
-  user: any;
-  onLike: (gameId: string) => void;
-  onGameSelect: (game: Game) => void;
-  key?: any;
-}) {
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-
-  const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -scrollRef.current.offsetWidth * 0.75, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: scrollRef.current.offsetWidth * 0.75, behavior: 'smooth' });
-    }
-  };
-
-  return (
-    <div className="relative px-4 md:px-12 group">
-      {/* Row Sleek Header Title */}
-      <div className="flex items-center gap-3 mb-4 pl-1">
+    <div className="px-4 md:px-12">
+      {/* Sleek Central Header Title */}
+      <div className="flex items-center gap-3 mb-6 pl-1">
         <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]"></span>
         <h2 className="text-slate-200 text-[10px] md:text-xs font-black tracking-[0.35em] uppercase">
-          {title}
+          🔥 KATAALOGI YA MAGEMU
         </h2>
         <span className="text-slate-600 font-mono text-[9px] font-black">
           ({games.length})
         </span>
       </div>
 
-      {/* Row Independent Navigation Controls to slide horizontally */}
-      {games.length > 1 && (
-        <>
-          <button
-            onClick={scrollLeft}
-            className="absolute left-6 top-[calc(50%+14px)] -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-slate-950/90 backdrop-blur-md border border-white/10 text-white flex items-center justify-center hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:scale-105 hover:border-blue-400 focus:outline-none transition-all duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100 shadow-[0_4px_20px_rgba(0,0,0,0.6)] cursor-pointer"
-            aria-label={`Scroll ${title} left`}
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button
-            onClick={scrollRight}
-            className="absolute right-6 top-[calc(50%+14px)] -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-slate-950/90 backdrop-blur-md border border-white/10 text-white flex items-center justify-center hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:scale-105 hover:border-blue-400 focus:outline-none transition-all duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100 shadow-[0_4px_20px_rgba(0,0,0,0.6)] cursor-pointer"
-            aria-label={`Scroll ${title} right`}
-          >
-            <ChevronRight size={20} />
-          </button>
-        </>
-      )}
-
-      {/* Carousel Core view track (Horizontal scrolling for this row ONLY) */}
-      <div
-        ref={scrollRef}
-        className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth pb-4 w-full"
-      >
+      {/* Flat grid view replacing horizontal carousel list */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
         {games.map((game) => {
           const gameStat = stats[game.id] || { likes: 0, downloads: 0, likedByUserIds: [] };
           const hasLiked = user ? gameStat.likedByUserIds.includes(user.uid) : false;
           return (
-            <div
+            <GameCard
               key={game.id}
-              className="flex-none w-[calc(50%-8px)] sm:w-[calc(33.33%-12px)] md:w-[calc(25%-18px)] lg:w-[calc(20%-20px)] xl:w-[calc(16.66%-20px)] snap-start h-full"
-            >
-              <GameCard
-                game={game}
-                onClick={onGameSelect}
-                likes={gameStat.likes}
-                downloads={gameStat.downloads}
-                hasLiked={hasLiked}
-                onLike={() => onLike(game.id)}
-              />
-            </div>
+              game={game}
+              onClick={onGameSelect}
+              likes={gameStat.likes}
+              downloads={gameStat.downloads}
+              hasLiked={hasLiked}
+              onLike={(e?: any) => onLike(game.id)}
+            />
           );
         })}
       </div>
