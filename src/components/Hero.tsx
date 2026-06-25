@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { ShoppingCart, ChevronLeft, ChevronRight, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import glassControllerImg from '../assets/images/glass_controller_1782288071094.jpg';
 
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0); // 0 = Glass Controller Image, 1 = Video
@@ -96,7 +97,7 @@ export default function Hero() {
           }`}
         >
           <img
-            src="/src/assets/images/glass_controller_1782288071094.jpg"
+            src={glassControllerImg}
             alt="Glass Controller Hero Banner"
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover object-center saturate-[1.15] brightness-[0.85]"
