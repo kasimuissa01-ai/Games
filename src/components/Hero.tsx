@@ -112,7 +112,7 @@ export default function Hero() {
         >
           <video
             ref={videoRef}
-            preload="auto"
+            preload="metadata"
             muted={isMuted}
             playsInline
             onEnded={handleVideoEnded}

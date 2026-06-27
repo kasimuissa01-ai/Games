@@ -32,7 +32,7 @@ export default function App() {
     trackPlatformOpen();
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 1800);
+    }, 400);
     return () => clearTimeout(timer);
   }, []);
 
